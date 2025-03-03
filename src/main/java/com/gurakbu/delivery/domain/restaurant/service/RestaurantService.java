@@ -1,11 +1,14 @@
 package com.gurakbu.delivery.domain.restaurant.service;
 
+import com.gurakbu.delivery.domain.restaurant.dto.request.RestaurantUpdateRequestDto;
 import com.gurakbu.delivery.domain.restaurant.dto.response.RestaurantDetailResponseDto;
 import com.gurakbu.delivery.domain.restaurant.dto.request.RestaurantCreateRequestDto;
 import com.gurakbu.delivery.domain.restaurant.entity.Restaurant;
 import com.gurakbu.delivery.domain.restaurant.repository.RestaurantRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +28,13 @@ public class RestaurantService {
                 requestDto.getMinDeliveryPrice()
         );
         restaurantRepository.save(restaurant);
+        return RestaurantDetailResponseDto.fromEntity(restaurant);
+    }
+
+    public RestaurantDetailResponseDto updateRestaurant(Long id, RestaurantUpdateRequestDto requestDto) {
+        Restaurant restaurant = restaurantRepository.findById(id)
+                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 가게"));
+        restaurant.updateRestaurant(requestDto);
         return RestaurantDetailResponseDto.fromEntity(restaurant);
     }
 }

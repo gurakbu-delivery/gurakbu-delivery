@@ -1,6 +1,7 @@
 package com.gurakbu.delivery.domain.restaurant.entity;
 
 import com.gurakbu.delivery.common.BaseTimeEntity;
+import com.gurakbu.delivery.domain.restaurant.dto.request.RestaurantUpdateRequestDto;
 import com.gurakbu.delivery.domain.restaurant.enums.RestaurantCategory;
 import com.gurakbu.delivery.domain.restaurant.enums.RestaurantStatus;
 import jakarta.persistence.*;
@@ -46,9 +47,6 @@ public class Restaurant extends BaseTimeEntity {
     @Column
     private Integer minDeliveryPrice;
 
-    @Column
-    private LocalDateTime deletedAt;
-
     public Restaurant(String name, String address, String description, RestaurantCategory category, RestaurantStatus status, LocalTime openTime, LocalTime closeTime, Integer minDeliveryPrice) {
         this.name = name;
         this.address = address;
@@ -59,4 +57,29 @@ public class Restaurant extends BaseTimeEntity {
         this.closeTime = closeTime;
         this.minDeliveryPrice = minDeliveryPrice;
     }
+
+    public void updateRestaurant(RestaurantUpdateRequestDto dto){
+        if(dto.getName() != null){
+            this.name = dto.getName();
+        }
+        if(dto.getAddress() != null){
+            this.address = dto.getAddress();
+        }
+        if(dto.getDescription() != null){
+            this.description = dto.getDescription();
+        }
+        if(dto.getCategory() != null){
+            this.category = dto.getCategory();
+        }
+        if(dto.getOpenTime() != null){
+            this.openTime = dto.getOpenTime();
+        }
+        if(dto.getCloseTime() != null){
+            this.closeTime = dto.getCloseTime();
+        }
+        if(dto.getMinDeliveryPrice() != null){
+            this.minDeliveryPrice = dto.getMinDeliveryPrice();
+        }
+    }
+
 }
