@@ -3,12 +3,15 @@ package com.gurakbu.delivery.domain.restaurant.controller;
 import com.gurakbu.delivery.domain.restaurant.dto.request.RestaurantUpdateRequestDto;
 import com.gurakbu.delivery.domain.restaurant.dto.response.RestaurantDetailResponseDto;
 import com.gurakbu.delivery.domain.restaurant.dto.request.RestaurantCreateRequestDto;
+import com.gurakbu.delivery.domain.restaurant.dto.response.RestaurantListResponseDto;
 import com.gurakbu.delivery.domain.restaurant.service.RestaurantService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/restaurants")
@@ -40,12 +43,40 @@ public class RestaurantController {
      * @param requestDto
      * @return RestaurantDetailResponseDto, Status 200
      */
-    @PutMapping("{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<RestaurantDetailResponseDto> updateRestaurant(
             @PathVariable Long id, @RequestBody RestaurantUpdateRequestDto requestDto
     ){
         RestaurantDetailResponseDto responseDto = restaurantService.updateRestaurant(id, requestDto);
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
+
+    /**
+     * 가게 단건 조회
+     *
+     * @param id
+     * @return RestaurantDetailResponseDto, Status 200
+     */
+    @GetMapping("/{id}")
+    public ResponseEntity<RestaurantDetailResponseDto> findRestaurant(
+            @PathVariable Long id
+    ){
+        RestaurantDetailResponseDto responseDto = restaurantService.findRestaurantById(id);
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+    }
+
+    /**
+     * 가게 목록 조회
+     * -> 페이징 처리 해야 함(공통 페이징 처리 필요)
+     *
+     * @return List<RestaurantListDto>, Status 200
+     */
+    @GetMapping
+    public ResponseEntity<List<RestaurantListResponseDto>> findRestaurants(){
+        List<RestaurantListResponseDto> dtos = restaurantService.findAllRestaurants();
+        return new ResponseEntity<>(dtos, HttpStatus.OK);
+    }
+
+    // 카테고리별 가게 목록 조회 추가하면 좋을듯 하군요
 
 }
