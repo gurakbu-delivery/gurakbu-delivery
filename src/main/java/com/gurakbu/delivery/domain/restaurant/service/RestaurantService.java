@@ -8,6 +8,7 @@ import com.gurakbu.delivery.domain.restaurant.entity.Restaurant;
 import com.gurakbu.delivery.domain.restaurant.repository.RestaurantRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -56,5 +57,12 @@ public class RestaurantService {
         List<RestaurantListResponseDto> dtos = restaurantRepository.findAll()
                 .stream().map(RestaurantListResponseDto::fromEntity).toList();
         return dtos;
+    }
+
+    @Transactional
+    public void closeRestaurant(Long id) {
+        Restaurant restaurant = restaurantRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 가게"));
+        restaurant.close();
     }
 }

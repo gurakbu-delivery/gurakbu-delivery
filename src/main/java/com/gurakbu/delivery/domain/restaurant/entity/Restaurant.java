@@ -82,4 +82,8 @@ public class Restaurant extends BaseTimeEntity {
         }
     }
 
+    public void close(){
+        this.status = RestaurantStatus.CLOSED;
+    }
+
 }

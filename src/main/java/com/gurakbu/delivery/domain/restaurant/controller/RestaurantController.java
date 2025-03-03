@@ -77,6 +77,16 @@ public class RestaurantController {
         return new ResponseEntity<>(dtos, HttpStatus.OK);
     }
 
-    // 카테고리별 가게 목록 조회 추가하면 좋을듯 하군요
-
+    /**
+     * 가게 폐업
+     * -> 인증/인가 구현되면 OWNER가 자신의 가게만 폐업할수 있도록 수정
+     *
+     * @param id
+     * @return Status 200
+     */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> closeRestaurant(@PathVariable Long id){
+        restaurantService.closeRestaurant(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }
