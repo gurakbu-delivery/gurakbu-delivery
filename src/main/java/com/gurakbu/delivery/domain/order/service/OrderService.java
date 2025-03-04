@@ -3,6 +3,7 @@ package com.gurakbu.delivery.domain.order.service;
 import com.gurakbu.delivery.domain.menu.entity.Menu;
 import com.gurakbu.delivery.domain.menu.repository.MenuRepository;
 import com.gurakbu.delivery.domain.order.dto.request.OrderRequestDto;
+import com.gurakbu.delivery.domain.order.dto.response.CancelOrderResponseDto;
 import com.gurakbu.delivery.domain.order.dto.response.OrderResponseDto;
 import com.gurakbu.delivery.domain.order.entity.Order;
 import com.gurakbu.delivery.domain.order.entity.OrderItem;
@@ -19,6 +20,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Transactional
 @Service
@@ -148,6 +150,43 @@ public class OrderService {
 
         order.setStatus(OrderStatus.CANCELLED);
         order.setCancelReason(reason);
+        orderRepository.save(order);
+    }
+
+    public CancelOrderResponseDto getCanceledOrderDto(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("주문을 확인할 수 없습니다."));
+
+        CancelOrderResponseDto dto = new CancelOrderResponseDto(
+                order.getId(),
+                order.getRestaurant().getName(),
+                order.getRestaurant().getAddress(),
+                order.getOrderItems().stream().map(item -> {
+                    CancelOrderResponseDto.OrderItemResponseDto itemDto = new CancelOrderResponseDto.OrderItemResponseDto();
+                    itemDto.setMenuName(item.getMenu().getName());
+                    itemDto.setQuantity(item.getQuantity());
+                    itemDto.setPrice(item.getPrice());
+                    return itemDto;
+                }).collect(Collectors.toList()),
+                order.getTotal_price(),
+                order.getStatus(),
+                order.getCancelReason()
+        );
+        return dto;
+    }
+
+    public void acceptOrderByRestaurant(User user, Long restaurantId, Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found"));
+
+        if (!order.getRestaurant().getId().equals(restaurantId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found in this restaurant");
+        }
+        if (!user.isAdmin() && !user.isOwner(restaurantId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
+        }
+
+        order.setStatus(OrderStatus.ORDER_ACCEPTED);
         orderRepository.save(order);
     }
 }
