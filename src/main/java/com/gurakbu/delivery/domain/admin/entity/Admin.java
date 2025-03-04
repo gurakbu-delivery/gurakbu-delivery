@@ -30,10 +30,15 @@ public class Admin {
         this.role = role;
     }
 
-    public void update(String email, String password, String name, String phone) {
-        this.email = email;
-        this.password = password;
-        this.name = name;
-        this.phone = phone;
+    public void update(String password, String name, String phone) {
+        if (password != null && !password.isBlank()) {
+            this.password = password;
+        }
+        if (name != null && !name.isBlank()) {
+            this.name = name;
+        }
+        if (phone != null && !phone.isBlank()) {
+            this.phone = phone;
+        }
     }
 }

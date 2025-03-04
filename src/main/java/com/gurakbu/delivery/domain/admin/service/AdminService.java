@@ -52,7 +52,7 @@ public class AdminService {
             newPassword = admin.getPassword();
         }
 
-        admin.update(adminRequestDto.getEmail(), newPassword, adminRequestDto.getName(), adminRequestDto.getPhone());
+        admin.update(newPassword, adminRequestDto.getName(), adminRequestDto.getPhone());
         return new AdminResponseDto(admin.getId(), admin.getEmail(), admin.getName(), admin.getPhone(), admin.getRole());
     }
 

@@ -51,7 +51,7 @@ public class UserService {
             newPassword = user.getPassword();
         }
 
-        user.update(userRequestDto.getEmail(), newPassword, userRequestDto.getName(), userRequestDto.getPhone());
+        user.update(newPassword, userRequestDto.getName(), userRequestDto.getPhone());
         return new UserResponseDto(user.getId(), user.getEmail(), user.getName(), user.getPhone(), user.getRole());
     }
 
