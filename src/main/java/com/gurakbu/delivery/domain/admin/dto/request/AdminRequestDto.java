@@ -9,4 +9,5 @@ public class AdminRequestDto {
     private String password;
     private String name;
     private String phone;
+    private String role;
 }

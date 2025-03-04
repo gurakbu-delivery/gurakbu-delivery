@@ -20,11 +20,11 @@ public class UserService {
     @Transactional
     public UserResponseDto createUser(UserRequestDto userRequestDto) {
         String encodedPassword = passwordEncoder.encode(userRequestDto.getPassword());
-        User user = new User(userRequestDto.getEmail(), encodedPassword, userRequestDto.getName(), userRequestDto.getPhone());
+        User user = new User(userRequestDto.getEmail(), encodedPassword, userRequestDto.getName(), userRequestDto.getPhone(), userRequestDto.getRole());
         User createdUser = userRepository.save(user);
 
         return new UserResponseDto(createdUser.getId(), createdUser.getEmail(),
-                encodedPassword, createdUser.getName(), createdUser.getPhone());
+                encodedPassword, createdUser.getName(), createdUser.getPhone(), createdUser.getRole());
     }
 
     @Transactional(readOnly = true)
@@ -36,7 +36,7 @@ public class UserService {
         if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new IllegalStateException("비밀번호가 일치하지 않습니다.");
         }
-        return new UserResponseDto(user.getId(), user.getEmail(), user.getPassword(), user.getName(), user.getPhone());
+        return new UserResponseDto(user.getId(), user.getEmail(), user.getPassword(), user.getName(), user.getPhone(), user.getRole());
     }
 
     @Transactional
@@ -45,8 +45,15 @@ public class UserService {
                 () -> new IllegalStateException("해당 id의 회원이 존재하지 않습니다.")
         );
 
-        user.update(userRequestDto.getEmail(), userRequestDto.getPassword(), userRequestDto.getName(), userRequestDto.getPhone());
-        return new UserResponseDto(user.getId(), user.getEmail(), user.getPassword(), user.getName(), user.getPhone());
+        String newPassword = userRequestDto.getPassword();
+        if (newPassword != null && !newPassword.isBlank()) {
+            newPassword = passwordEncoder.encode(newPassword);
+        } else {
+            newPassword = user.getPassword();
+        }
+
+        user.update(userRequestDto.getEmail(), newPassword, userRequestDto.getName(), userRequestDto.getPhone());
+        return new UserResponseDto(user.getId(), user.getEmail(), user.getPassword(), user.getName(), user.getPhone(), user.getRole());
     }
 
     @Transactional

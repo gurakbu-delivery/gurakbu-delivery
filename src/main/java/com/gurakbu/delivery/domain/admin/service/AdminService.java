@@ -21,11 +21,11 @@ public class AdminService {
     @Transactional
     public AdminResponseDto createAdmin(AdminRequestDto adminRequestDto) {
         String encodedPassword = passwordEncoder.encode(adminRequestDto.getPassword());
-        Admin admin = new Admin(adminRequestDto.getEmail(), encodedPassword, adminRequestDto.getName(), adminRequestDto.getPhone());
+        Admin admin = new Admin(adminRequestDto.getEmail(), encodedPassword, adminRequestDto.getName(), adminRequestDto.getPhone(), adminRequestDto.getRole());
         Admin createdAdmin = adminRepository.save(admin);
 
         return new AdminResponseDto(createdAdmin.getId(), createdAdmin.getEmail(),
-                encodedPassword, createdAdmin.getName(), createdAdmin.getPhone());
+                encodedPassword, createdAdmin.getName(), createdAdmin.getPhone(), createdAdmin.getRole());
     }
 
     @Transactional(readOnly = true)
@@ -37,7 +37,7 @@ public class AdminService {
         if (!passwordEncoder.matches(password, admin.getPassword())) {
             throw new IllegalStateException("비밀번호가 일치하지 않습니다.");
         }
-        return new AdminResponseDto(admin.getId(), admin.getEmail(), admin.getPassword(), admin.getName(), admin.getPhone());
+        return new AdminResponseDto(admin.getId(), admin.getEmail(), admin.getPassword(), admin.getName(), admin.getPhone(), admin.getRole());
     }
 
     @Transactional
@@ -47,7 +47,7 @@ public class AdminService {
         );
 
         admin.update(adminRequestDto.getEmail(), adminRequestDto.getPassword(), adminRequestDto.getName(), adminRequestDto.getPhone());
-        return new AdminResponseDto(admin.getId(), admin.getEmail(), admin.getPassword(), admin.getName(), admin.getPhone());
+        return new AdminResponseDto(admin.getId(), admin.getEmail(), admin.getPassword(), admin.getName(), admin.getPhone(), admin.getRole());
     }
 
     @Transactional

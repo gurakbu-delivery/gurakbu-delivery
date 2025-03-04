@@ -19,14 +19,15 @@ public class Admin {
     private String name;
     @Column(nullable = false)
     private String phone;
-    private final String role = "ADMIN";
+    private String role = "ADMIN";
 
 
-    public Admin(String email, String password, String name, String phone) {
+    public Admin(String email, String password, String name, String phone, String role) {
         this.email = email;
         this.password = password;
         this.name = name;
         this.phone = phone;
+        this.role = role;
     }
 
     public void update(String email, String password, String name, String phone) {
