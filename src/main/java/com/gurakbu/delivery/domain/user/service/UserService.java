@@ -4,6 +4,7 @@ import com.gurakbu.delivery.config.PasswordEncoder;
 import com.gurakbu.delivery.domain.user.dto.request.UserRequestDto;
 import com.gurakbu.delivery.domain.user.dto.response.UserResponseDto;
 import com.gurakbu.delivery.domain.user.entity.User;
+import com.gurakbu.delivery.domain.user.enums.Role;
 import com.gurakbu.delivery.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,7 +21,10 @@ public class UserService {
     @Transactional
     public UserResponseDto createUser(UserRequestDto userRequestDto) {
         String encodedPassword = passwordEncoder.encode(userRequestDto.getPassword());
-        User user = new User(userRequestDto.getEmail(), encodedPassword, userRequestDto.getName(), userRequestDto.getPhone(), userRequestDto.getRole());
+
+        Role role = (userRequestDto.getRole() != null) ? userRequestDto.getRole() : Role.USER;  // 요청된 role이 없으면 기본값 USER
+
+        User user = new User(userRequestDto.getEmail(), encodedPassword, userRequestDto.getName(), userRequestDto.getPhone(), role);
         User createdUser = userRepository.save(user);
 
         return new UserResponseDto(createdUser.getId(), createdUser.getEmail(), createdUser.getName(), createdUser.getPhone(), createdUser.getRole());

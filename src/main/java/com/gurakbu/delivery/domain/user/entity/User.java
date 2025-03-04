@@ -1,5 +1,6 @@
 package com.gurakbu.delivery.domain.user.entity;
 
+import com.gurakbu.delivery.domain.user.enums.Role;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,10 +22,12 @@ public class User {
     private String name;
     @Column(nullable = false)
     private String phone;
-    private String role = "USER";
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role;
 
 
-    public User(String email, String password, String name, String phone, String role) {
+    public User(String email, String password, String name, String phone, Role role) {
         this.email = email;
         this.password = password;
         this.name = name;
