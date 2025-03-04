@@ -39,4 +39,7 @@ public class Order extends BaseTimeEntity {
     @Column(nullable = false)
     private OrderStatus status;
 
+    @Column
+    private String cancelReason;
+
 }

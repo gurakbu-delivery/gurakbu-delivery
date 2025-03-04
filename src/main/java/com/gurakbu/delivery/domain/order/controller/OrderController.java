@@ -19,6 +19,7 @@ public class OrderController {
 
     private final OrderService orderService;
 
+    // 주문 생성
     @PostMapping
     public ResponseEntity<OrderResponseDto> createOrder(
             @AuthenticationPrincipal User user,
@@ -41,22 +42,12 @@ public class OrderController {
         return ResponseEntity.ok(updatedStatus);
     }
 
+    // 주문 조회
     @GetMapping("/{orderId}")
     public ResponseEntity<OrderResponseDto> getOrder(@PathVariable Long orderId){
         OrderResponseDto responseDto = orderService.getOrder(orderId);
 
         return ResponseEntity.ok(responseDto);
-    }
-
-
-    @DeleteMapping("{orderId}/cancle")
-    public ResponseEntity<String> cancelOrder(
-            @AuthenticationPrincipal User user,
-            @PathVariable Long orderId
-    ){
-
-        orderService.cancelOrder(user,orderId);
-        return ResponseEntity.ok("Order cancelled successfully");
     }
 
 }

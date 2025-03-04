@@ -13,7 +13,9 @@ import com.gurakbu.delivery.domain.restaurant.repository.RestaurantRepository;
 import com.gurakbu.delivery.domain.user.entity.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -130,19 +132,22 @@ public class OrderService {
     }
 
 
-    public void cancelOrder(User user, Long orderId) {
-        // 주문 조회
+    public void cancelOrderByRestaurant(User user, Long restaurantId,Long orderId,String reason) {
+
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "주문을 찾을 수 없습니다."));
 
+        // 주문이 해당 restaurantId 소유인지 확인
+        if (!order.getRestaurant().getId().equals(restaurantId)){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"가게의 주문이 아닙니다.");
+        }
 
-        // 권한 확인
-        if(!order.getUser().getId().equals(user.getId()) && !user.isAdmin()){
-            throw new SecurityException("주문 취소 권한이 없습니다.");
+        if(!user.isAdmin() && !user.isOwner(restaurantId)){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,"권한이 없습니다.");
         }
 
         order.setStatus(OrderStatus.CANCELLED);
-
+        order.setCancelReason(reason);
         orderRepository.save(order);
     }
 }
