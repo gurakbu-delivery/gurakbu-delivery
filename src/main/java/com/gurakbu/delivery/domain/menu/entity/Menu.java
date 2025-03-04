@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDateTime;
 
@@ -64,7 +63,22 @@ public class Menu {
     @Column(name="updated_at")
     private LocalDateTime updatedAt;
 
+    // 정적 팩토리 메서드: 메뉴 생성 로직(Menu.builder())을 엔티티 층으로 이동
+    // 객체 생성에 필요한 값만 create에서 처리하고, 그 외 자동으로 보완할 값은 DB 저장 직전에 @PerPersist에서 처리
+    public static Menu create(Restaurant restaurant, String name, Integer price, MenuCategory category, String description, MenuStatus status, boolean popularity) {
+        Menu menu = new Menu();
+        menu.restaurant = restaurant;
+        menu.name = name;
+        menu.price = price;
+        menu.category = category;
+        menu.description = description;
+        menu.status = status;
+        menu.popularity = popularity;
+        return menu;
+    }
+
     // 생성시 설정 : 생성시간, 수정시간 설정
+    // 객체 생성에 필요한 값만 create에서 처리하고, 그 외 자동으로 보완할 값은 DB 저장 직전에 @PerPersist에서 처리
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
@@ -81,9 +95,31 @@ public class Menu {
         }
     }
 
+    // 메뉴 수정 메서드 (updatedAt은 JPA가 @PreUpdate로 변경)
+    public void update(String name, Integer price, MenuCategory category, String description, MenuStatus status, boolean popularity) {
+        if (name != null) this.name = name;
+        if (price != null) this.price = price;
+        if (category != null) this.category = category;
+        if (description != null) this.description = description;
+        if (status != null) this.status = status;
+        this.popularity = popularity;
+    }
+
     // 수정시 설정 : 수정시간 재설정
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
 }
+
+/*
+id | BIGINT | N-N
+restaurant_id | BIGINT | N-N
+name | VARCHAR | N-N
+price | INT | N-N
+category | ENUM | N-N
+popularity | BIT | N
+status | ENUM | N-N
+created_at | DATETIME | N
+updated_at | DATETIME | N
+ */
