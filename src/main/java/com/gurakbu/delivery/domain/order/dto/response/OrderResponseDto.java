@@ -21,7 +21,7 @@ public class OrderResponseDto {
     @Setter
     public static class OrderItemResponseDto {
         private String menuName;
-        private int quantity;
-        private int price;
+        private Integer quantity;
+        private Integer price;
     }
 }

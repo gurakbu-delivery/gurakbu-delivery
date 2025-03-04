@@ -26,8 +26,8 @@ public class OrderItem {
     private Menu menu;
 
     @Column(nullable = false)
-    private int quantity;
+    private Integer quantity;
 
     @Column(nullable = false)
-    private int price;
+    private Integer price;
 }
