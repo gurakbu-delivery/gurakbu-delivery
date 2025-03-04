@@ -23,7 +23,7 @@ public class MenuResponseDto {
     private LocalDateTime updatedAt;
 
     // 생성자: 엔티티 -> DTO로 변환
-    public MenuResponseDto(Long id,
+    public MenuResponseDto( Long id,
                                   String name,
                                   Integer price,
                                   MenuCategory category,
