@@ -92,7 +92,7 @@ public class Menu {
         }
 
         if (status == null) {                // 상태 미 입력시
-            status = MenuStatus.UNAVAILABLE; // 기본값 설정
+            status = MenuStatus.CLOSED; // 기본값 설정
         }
     }
 
