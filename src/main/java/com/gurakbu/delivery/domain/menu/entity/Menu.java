@@ -1,5 +1,6 @@
 package com.gurakbu.delivery.domain.menu.entity;
 
+import com.gurakbu.delivery.domain.restaurant.entity.Restaurant;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
