@@ -24,8 +24,7 @@ public class AdminService {
         Admin admin = new Admin(adminRequestDto.getEmail(), encodedPassword, adminRequestDto.getName(), adminRequestDto.getPhone(), adminRequestDto.getRole());
         Admin createdAdmin = adminRepository.save(admin);
 
-        return new AdminResponseDto(createdAdmin.getId(), createdAdmin.getEmail(),
-                encodedPassword, createdAdmin.getName(), createdAdmin.getPhone(), createdAdmin.getRole());
+        return new AdminResponseDto(createdAdmin.getId(), createdAdmin.getEmail(), createdAdmin.getName(), createdAdmin.getPhone(), createdAdmin.getRole());
     }
 
     @Transactional(readOnly = true)
@@ -37,7 +36,7 @@ public class AdminService {
         if (!passwordEncoder.matches(password, admin.getPassword())) {
             throw new IllegalStateException("비밀번호가 일치하지 않습니다.");
         }
-        return new AdminResponseDto(admin.getId(), admin.getEmail(), admin.getPassword(), admin.getName(), admin.getPhone(), admin.getRole());
+        return new AdminResponseDto(admin.getId(), admin.getEmail(), admin.getName(), admin.getPhone(), admin.getRole());
     }
 
     @Transactional
@@ -46,8 +45,15 @@ public class AdminService {
                 () -> new IllegalStateException("해당 id의 관리자가 존재하지 않습니다.")
         );
 
-        admin.update(adminRequestDto.getEmail(), adminRequestDto.getPassword(), adminRequestDto.getName(), adminRequestDto.getPhone());
-        return new AdminResponseDto(admin.getId(), admin.getEmail(), admin.getPassword(), admin.getName(), admin.getPhone(), admin.getRole());
+        String newPassword = adminRequestDto.getPassword();
+        if (newPassword != null && !newPassword.isBlank()) {
+            newPassword = passwordEncoder.encode(newPassword);
+        } else {
+            newPassword = admin.getPassword();
+        }
+
+        admin.update(adminRequestDto.getEmail(), newPassword, adminRequestDto.getName(), adminRequestDto.getPhone());
+        return new AdminResponseDto(admin.getId(), admin.getEmail(), admin.getName(), admin.getPhone(), admin.getRole());
     }
 
     @Transactional

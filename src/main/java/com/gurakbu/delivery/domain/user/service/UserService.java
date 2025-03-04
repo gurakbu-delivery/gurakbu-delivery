@@ -23,8 +23,7 @@ public class UserService {
         User user = new User(userRequestDto.getEmail(), encodedPassword, userRequestDto.getName(), userRequestDto.getPhone(), userRequestDto.getRole());
         User createdUser = userRepository.save(user);
 
-        return new UserResponseDto(createdUser.getId(), createdUser.getEmail(),
-                encodedPassword, createdUser.getName(), createdUser.getPhone(), createdUser.getRole());
+        return new UserResponseDto(createdUser.getId(), createdUser.getEmail(), createdUser.getName(), createdUser.getPhone(), createdUser.getRole());
     }
 
     @Transactional(readOnly = true)
@@ -36,7 +35,7 @@ public class UserService {
         if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new IllegalStateException("비밀번호가 일치하지 않습니다.");
         }
-        return new UserResponseDto(user.getId(), user.getEmail(), user.getPassword(), user.getName(), user.getPhone(), user.getRole());
+        return new UserResponseDto(user.getId(), user.getEmail(), user.getName(), user.getPhone(), user.getRole());
     }
 
     @Transactional
@@ -53,7 +52,7 @@ public class UserService {
         }
 
         user.update(userRequestDto.getEmail(), newPassword, userRequestDto.getName(), userRequestDto.getPhone());
-        return new UserResponseDto(user.getId(), user.getEmail(), user.getPassword(), user.getName(), user.getPhone(), user.getRole());
+        return new UserResponseDto(user.getId(), user.getEmail(), user.getName(), user.getPhone(), user.getRole());
     }
 
     @Transactional
