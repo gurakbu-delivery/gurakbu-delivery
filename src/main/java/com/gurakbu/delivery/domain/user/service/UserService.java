@@ -1,0 +1,61 @@
+package com.gurakbu.delivery.domain.user.service;
+
+import com.gurakbu.delivery.config.PasswordEncoder;
+import com.gurakbu.delivery.domain.user.dto.request.UserRequestDto;
+import com.gurakbu.delivery.domain.user.dto.response.UserResponseDto;
+import com.gurakbu.delivery.domain.user.entity.User;
+import com.gurakbu.delivery.domain.user.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+
+@Service
+@RequiredArgsConstructor
+public class UserService {
+
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    @Transactional
+    public UserResponseDto createUser(UserRequestDto userRequestDto) {
+        String encodedPassword = passwordEncoder.encode(userRequestDto.getPassword());
+        User user = new User(userRequestDto.getEmail(), encodedPassword, userRequestDto.getName(), userRequestDto.getPhone());
+        User createdUser = userRepository.save(user);
+
+        return new UserResponseDto(createdUser.getId(), createdUser.getEmail(),
+                encodedPassword, createdUser.getName(), createdUser.getPhone());
+    }
+
+    @Transactional(readOnly = true)
+    public UserResponseDto loginUser(String email, String password) {
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new IllegalStateException("해당 이메일은 가입되지 않았습니다.")
+        );
+
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new IllegalStateException("비밀번호가 일치하지 않습니다.");
+        }
+        return new UserResponseDto(user.getId(), user.getEmail(), user.getPassword(), user.getName(), user.getPhone());
+    }
+
+    @Transactional
+    public UserResponseDto updateUser(Long id, UserRequestDto userRequestDto) {
+        User user = userRepository.findById(id).orElseThrow(
+                () -> new IllegalStateException("해당 id의 회원이 존재하지 않습니다.")
+        );
+
+        user.update(userRequestDto.getEmail(), userRequestDto.getPassword(), userRequestDto.getName(), userRequestDto.getPhone());
+        return new UserResponseDto(user.getId(), user.getEmail(), user.getPassword(), user.getName(), user.getPhone());
+    }
+
+    @Transactional
+    public void deleteUser(Long id) {
+        boolean b = userRepository.existsById(id);
+        if (!b) {
+            throw new IllegalStateException("해당 id의 회원이 존재하지 않습니다.");
+        }
+
+        userRepository.deleteById(id);
+    }
+}
