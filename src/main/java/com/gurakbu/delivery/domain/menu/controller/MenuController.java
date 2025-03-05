@@ -1,12 +1,15 @@
 package com.gurakbu.delivery.domain.menu.controller;
 
 import com.gurakbu.delivery.domain.menu.dto.request.MenuCreateRequestDto;
+import com.gurakbu.delivery.domain.menu.dto.request.MenuUpdateRequestDto;
 import com.gurakbu.delivery.domain.menu.dto.response.MenuResponseDto;
 import com.gurakbu.delivery.domain.menu.service.MenuService;
+import com.gurakbu.delivery.domain.user.entity.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,52 +20,45 @@ public class MenuController {
     private final MenuService menuService;
 
     /**
-     * 메뉴 생성 요청
-     * -> 해당 가게의 사장님만 요청 가능하도록 수정해야 함
-     *
-     * @param menuCreateRequestDto
-     * @return MenuResponseDto, 201 CREATED, 403 FORBIDDEN
+     * 메뉴 생성
+     * -> 해당 가게의 사장님만 요청 가능하도록 추후 권한 체크
      */
-
-    // 메뉴 생성
-    @PostMapping("/{restaurentId}")
+    @PostMapping("/{restaurantId}")
     public ResponseEntity<MenuResponseDto> createMenu(
-            @PathVariable Long restaurentId,
-            @Valid @RequestBody MenuCreateRequestDto requestDto)
-    {
-        MenuResponseDto responseDto = menuService.createMenu(restaurentId, requestDto, );   // 사용자인증
+            @AuthenticationPrincipal User user,
+            @PathVariable Long restaurantId,
+            @Valid @RequestBody MenuCreateRequestDto requestDto
+    ){
+        MenuResponseDto responseDto = menuService.createMenu(restaurantId, requestDto, user);
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 
     /**
-     * 메뉴 정보 수정 요청
-     * -> 해당 가게의 사장님만 요청 가능
-     *
-     * @param restaurantId
-     * @param menuId
-     * @param menuUpdateRequestDto
-     * @return MenuResponseDto, Status 200 OK, 403 FORBIDDEN
+     * 메뉴 수정
+     * -> 해당 가게의 사장님만 요청 가능하도록 추후 권한 체크
      */
-    @PutMapping("/{restaurentId}/{menuId}")
+    @PutMapping("/{restaurantId}/{menuId}")
     public ResponseEntity<MenuResponseDto> updateMenu(
-            @PathVariable Long restaurentId,
-            @Valid @RequestBody MenuCreateRequestDto requestDto)
-    {
-        MenuResponseDto responseDto = menuService.updateMenu(restaurentId, requestDto, );   // 사용자인증
+            @AuthenticationPrincipal User user,
+            @PathVariable Long restaurantId,
+            @PathVariable Long menuId,
+            @Valid @RequestBody MenuUpdateRequestDto requestDto
+    ){
+        MenuResponseDto responseDto = menuService.updateMenu(restaurantId, menuId, requestDto, user);
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
     /**
      * 메뉴 삭제
-     * -> 해당 가게의 사장님만 요청 가능
-     *
-     * @param restaurantId
-     * @param menuId
-     * @return Status 200 OK, 403 FORBIDDEN
+     * -> 해당 가게의 사장님만 요청 가능하도록 추후 권한 체크
      */
     @DeleteMapping("/{restaurantId}/{menuId}")
-    public ResponseEntity<MenuResponseDto> deleteMenu(@PathVariable Long restaurentId, @PathVariable Long menuId){
-        menuService.deleteMenu(restaurentId, menuId, ); // 사용자 인증필요
+    public ResponseEntity<Void> deleteMenu(
+            @AuthenticationPrincipal User user,
+            @PathVariable Long restaurantId,
+            @PathVariable Long menuId
+    ){
+        menuService.deleteMenu(restaurantId, menuId, user);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

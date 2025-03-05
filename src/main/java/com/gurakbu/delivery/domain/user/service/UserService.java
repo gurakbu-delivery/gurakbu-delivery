@@ -1,10 +1,14 @@
 package com.gurakbu.delivery.domain.user.service;
 
 import com.gurakbu.delivery.config.PasswordEncoder;
-import com.gurakbu.delivery.domain.user.dto.request.UserRequestDto;
-import com.gurakbu.delivery.domain.user.dto.response.UserResponseDto;
+import com.gurakbu.delivery.config.jwt.JwtTokenProvider;
+import com.gurakbu.delivery.config.jwt.dto.TokenResponseDto;
+import com.gurakbu.delivery.config.jwt.entity.RefreshToken;
+import com.gurakbu.delivery.config.jwt.service.RefreshTokenService;
+import com.gurakbu.delivery.domain.user.dto.request.LoginRequestDto;
+import com.gurakbu.delivery.domain.user.dto.request.SignUpRequestDto;
 import com.gurakbu.delivery.domain.user.entity.User;
-import com.gurakbu.delivery.domain.user.enums.Role;
+import com.gurakbu.delivery.domain.user.enums.UserRole;
 import com.gurakbu.delivery.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,55 +21,101 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final RefreshTokenService refreshTokenService;
+
 
     @Transactional
-    public UserResponseDto createUser(UserRequestDto userRequestDto) {
-        String encodedPassword = passwordEncoder.encode(userRequestDto.getPassword());
+    public TokenResponseDto signUp(SignUpRequestDto requestDto){
 
-        Role role = (userRequestDto.getRole() != null) ? userRequestDto.getRole() : Role.USER;  // 요청된 role이 없으면 기본값 USER
+        if(userRepository.existsByEmail(requestDto.getEmail())){
+            throw new IllegalStateException("이미 가입된 사용자 이메일입니다.");
+        }
 
-        User user = new User(userRequestDto.getEmail(), encodedPassword, userRequestDto.getName(), userRequestDto.getPhone(), role);
-        User createdUser = userRepository.save(user);
+        String encodedPassword = passwordEncoder.encode(requestDto.getPassword());
+        UserRole userRole = requestDto.getUserRole() != null ? requestDto.getUserRole() : UserRole.USER;
 
-        return new UserResponseDto(createdUser.getId(), createdUser.getEmail(), createdUser.getName(), createdUser.getPhone(), createdUser.getRole());
-    }
-
-    @Transactional(readOnly = true)
-    public UserResponseDto loginUser(String email, String password) {
-        User user = userRepository.findByEmail(email).orElseThrow(
-                () -> new IllegalStateException("해당 이메일은 가입되지 않았습니다.")
+        User user = new User(
+                requestDto.getEmail(),
+                encodedPassword,
+                requestDto.getName(),
+                requestDto.getPhoneNumber(),
+                userRole
         );
 
-        if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new IllegalStateException("비밀번호가 일치하지 않습니다.");
-        }
-        return new UserResponseDto(user.getId(), user.getEmail(), user.getName(), user.getPhone(), user.getRole());
+        userRepository.save(user);
+        String accessToken = jwtTokenProvider.generateAccessToken(user.getEmail(), user.getUserRole().name());
+
+        // Refresh Token 생성 및 저장
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getEmail());
+        return new TokenResponseDto(accessToken, refreshToken.getRefreshToken());
+
     }
 
     @Transactional
-    public UserResponseDto updateUser(Long id, UserRequestDto userRequestDto) {
-        User user = userRepository.findById(id).orElseThrow(
-                () -> new IllegalStateException("해당 id의 회원이 존재하지 않습니다.")
+    public TokenResponseDto login(LoginRequestDto requestDto){
+        User user = userRepository.findByEmailAndIsDeletedFalse(requestDto.getEmail())
+                .orElseThrow(() -> new IllegalArgumentException("이메일이나 비밀번호가 일치하지 않습니다."));
+
+        if(!passwordEncoder.matches(requestDto.getPassword(),user.getPassword())){
+            throw new IllegalStateException("이메일이나 비밀번호가 일치하지 않습니다.");
+        }
+
+        String accessToken = jwtTokenProvider.generateAccessToken(user.getEmail(),user.getUserRole().name());
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getEmail());
+        return new TokenResponseDto(accessToken, refreshToken.getRefreshToken());
+    }
+
+//    @Transactional
+//    public UserResponseDto updateUser(Long id, UserRequestDto userRequestDto) {
+//        User user = userRepository.findById(id).orElseThrow(
+//                () -> new IllegalStateException("해당 id의 회원이 존재하지 않습니다.")
+//        );
+//
+//        String newPassword = userRequestDto.getPassword();
+//        if (newPassword != null && !newPassword.isBlank()) {
+//            newPassword = passwordEncoder.encode(newPassword);
+//        } else {
+//            newPassword = user.getPassword();
+//        }
+//
+//        user.update(newPassword, userRequestDto.getName(), userRequestDto.getPhone());
+//        return new UserResponseDto(user.getId(), user.getEmail(), user.getName(), user.getPhone(), user.getRole());
+//    }
+
+
+    @Transactional
+    public void deleteUser(String userEmail, String rawPassword) {
+        User user = userRepository.findByEmailAndIsDeletedFalse(userEmail)
+                .orElseThrow(() -> new IllegalArgumentException("이메일이나 비밀번호가 일치하지 않습니다."));
+
+        if (!passwordEncoder.matches(rawPassword, user.getPassword())) {
+            throw new IllegalArgumentException("이메일이나 비밀번호가 일치하지 않습니다.");
+        }
+        user.setDeleted(true);
+        userRepository.save(user);
+        refreshTokenService.deleteByEmail(userEmail);
+    }
+
+    // Access Token 재발급 API (리프레시 토큰 사용)
+    @Transactional
+    public TokenResponseDto reissueAccessToken(String refreshToken) {
+        // 리프레시 토큰 검증
+        if (!jwtTokenProvider.validateToken(refreshToken)) {
+            throw new IllegalArgumentException("유효하지 않은 Refresh Token입니다.");
+        }
+        // DB에 저장된 토큰과 일치하는지 확인
+        RefreshToken storedToken = refreshTokenService.verifyExpiration(
+                refreshTokenService.getByToken(refreshToken)
+                        .orElseThrow(() -> new IllegalArgumentException("Refresh Token을 찾을 수 없습니다."))
         );
 
-        String newPassword = userRequestDto.getPassword();
-        if (newPassword != null && !newPassword.isBlank()) {
-            newPassword = passwordEncoder.encode(newPassword);
-        } else {
-            newPassword = user.getPassword();
-        }
 
-        user.update(newPassword, userRequestDto.getName(), userRequestDto.getPhone());
-        return new UserResponseDto(user.getId(), user.getEmail(), user.getName(), user.getPhone(), user.getRole());
-    }
-
-    @Transactional
-    public void deleteUser(Long id) {
-        boolean b = userRepository.existsById(id);
-        if (!b) {
-            throw new IllegalStateException("해당 id의 회원이 존재하지 않습니다.");
-        }
-
-        userRepository.deleteById(id);
+        String username = storedToken.getEmail();
+        User user = userRepository.findByEmailAndIsDeletedFalse(username)
+                .orElseThrow(() -> new IllegalArgumentException("사용자 정보를 찾을 수 없습니다."));
+        String newAccessToken = jwtTokenProvider.generateAccessToken(user.getEmail(), user.getUserRole().name());
+        // 필요 시 새로운 Refresh Token 발급 및 DB 갱신 가능 (여기서는 그대로 사용)
+        return new TokenResponseDto(newAccessToken, storedToken.getRefreshToken());
     }
 }

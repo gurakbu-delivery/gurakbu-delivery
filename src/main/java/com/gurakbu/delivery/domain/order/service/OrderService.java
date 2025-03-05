@@ -120,13 +120,14 @@ public class OrderService {
 
         List<OrderResponseDto.OrderItemResponseDto> orderItemList = order.getOrderItems()
                 .stream()
-                .map(item ->{
+                .map(item -> {
                     OrderResponseDto.OrderItemResponseDto itemDto = new OrderResponseDto.OrderItemResponseDto();
                     itemDto.setMenuName(item.getMenu().getName());
                     itemDto.setQuantity(item.getQuantity());
                     itemDto.setPrice(item.getPrice());
                     return itemDto;
-                });
+                })
+                .collect(Collectors.toList());
 
         orderResponseDto.setOrderItems(orderItemList);
 
