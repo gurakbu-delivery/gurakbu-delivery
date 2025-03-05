@@ -189,4 +189,11 @@ public class MenuServiceTest {
         // when (실행)
         // then (검증)
     }
+
+    @Test
+    void menu가_성공적으로_삭제된다(){
+        // given (준비)
+        // when (실행)
+        // then (검증)
+    }
 }

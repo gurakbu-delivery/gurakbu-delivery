@@ -39,7 +39,7 @@ public class MenuService {
 //        }
 
          Menu menu = Menu.create(
-                 restaurant,
+                 restaurantId,
                  requestDto.getName(),
                  requestDto.getPrice(),
                  requestDto.getCategory(),
@@ -67,7 +67,7 @@ public class MenuService {
         Menu menu = menuRepository.findById(menuId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "[!] 존재하지 않는 메뉴"));
 
-        if (!menu.getRestaurent().getId().equals(restaurantId)) {
+        if (!menu.getRestaurentId().equals(restaurantId)) {
             throw new RuntimeException("[!] 수정하려는 메뉴가 사장님 가게의 메뉴가 아닙니다.");
         }
         menu.update(requestDto);
