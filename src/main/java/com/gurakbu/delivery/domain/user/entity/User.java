@@ -50,6 +50,5 @@ public class User extends BaseTimeEntity {
         if (phone != null && !phone.isBlank()) {
             this.phone = phone;
         }
-
     }
 }

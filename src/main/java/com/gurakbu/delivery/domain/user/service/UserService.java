@@ -1,5 +1,6 @@
 package com.gurakbu.delivery.domain.user.service;
 
+import com.gurakbu.delivery.config.JwtTokenProvider;
 import com.gurakbu.delivery.config.PasswordEncoder;
 import com.gurakbu.delivery.domain.user.dto.request.UserRequestDto;
 import com.gurakbu.delivery.domain.user.dto.response.UserResponseDto;
@@ -17,6 +18,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @Transactional
     public UserResponseDto createUser(UserRequestDto userRequestDto) {
@@ -39,7 +41,7 @@ public class UserService {
         if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new IllegalStateException("비밀번호가 일치하지 않습니다.");
         }
-        return new UserResponseDto(user.getId(), user.getEmail(), user.getName(), user.getPhone(), user.getRole());
+        return jwtTokenProvider.createToken(user.getEmail(), user.getRole());
     }
 
     @Transactional
