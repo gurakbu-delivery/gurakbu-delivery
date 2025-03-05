@@ -33,7 +33,7 @@ public class Order extends BaseTimeEntity {
     private List<OrderItem> orderItems = new ArrayList<>();
 
     @Column(nullable = false)
-    private int total_price;
+    private Integer total_price;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

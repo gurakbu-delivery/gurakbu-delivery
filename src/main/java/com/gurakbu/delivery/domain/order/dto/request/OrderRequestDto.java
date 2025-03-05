@@ -24,7 +24,7 @@ public class OrderRequestDto {
     public static class OrderItemRequestDto {
         private Long menuId;
 
-        private int quantity;
+        private Integer quantity;
     }
 
 }
