@@ -1,5 +1,6 @@
 package com.gurakbu.delivery.domain.menu.entity;
 
+import com.gurakbu.delivery.common.BaseTimeEntity;
 import com.gurakbu.delivery.domain.menu.dto.request.MenuUpdateRequestDto;
 import com.gurakbu.delivery.domain.restaurant.entity.Restaurant;
 import jakarta.persistence.*;
@@ -17,7 +18,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor         // 모든 필드를 포함하는 생성자도 자동 생성
 @Builder(toBuilder = true)  // Builder 패턴 자동 생성 & 기존 객체 복사 후 수정 가능
 
-public class Menu {
+public class Menu extends BaseTimeEntity {
     // id : 기본 키, 자동생성, 자동증가
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
