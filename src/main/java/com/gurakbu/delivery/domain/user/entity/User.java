@@ -1,45 +1,68 @@
 package com.gurakbu.delivery.domain.user.entity;
 
 import com.gurakbu.delivery.common.BaseTimeEntity;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import lombok.Getter;
-import com.gurakbu.delivery.domain.user.enums.Role;
+import com.gurakbu.delivery.domain.order.entity.Order;
+import com.gurakbu.delivery.domain.review.entity.Review;
+import com.gurakbu.delivery.domain.user.enums.UserRole;
 import jakarta.persistence.*;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
+@Setter
 @Entity
+@Table(name = "users")
 @NoArgsConstructor
 public class User extends BaseTimeEntity {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(nullable = false, unique = true)
     private String email;
+
     @Column(nullable = false)
     private String password;
+
     @Column(nullable = false)
     private String name;
+
     @Column(nullable = false)
     private String phone;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Role role;
+    private UserRole userRole;
 
+    @Column(nullable = false)
+    private boolean isDeleted = false;
 
-    public User(String email, String password, String name, String phone, Role role) {
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Order> orders = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Review> reviews = new ArrayList<>();
+
+    public User(String email, String password, String name, String phone, UserRole role) {
         this.email = email;
         this.password = password;
         this.name = name;
         this.phone = phone;
-        this.role = role;
+        this.userRole = role;
     }
 
+    public User(String email, String password, UserRole userRole) {
+        this.email = email;
+        this.password = password;
+        this.userRole = userRole;
+    }
+
+    // 회원 정보 업데이트
     public void update(String password, String name, String phone) {
         if (password != null && !password.isBlank()) {
             this.password = password;
@@ -50,5 +73,17 @@ public class User extends BaseTimeEntity {
         if (phone != null && !phone.isBlank()) {
             this.phone = phone;
         }
+    }
+
+    // UserRole을 통한 ADMIN 여부 확인
+    public boolean isAdmin() {
+        return this.userRole.isAdmin();
+    }
+
+    // UserRole을 통한 OWNER 여부 확인
+    public boolean isOwner(Long restaurantId) {
+        // 간단하게 OWNER 역할만 체크하거나,
+        // 추가로 해당 사용자가 실제로 해당 식당의 소유자인지 검증하는 로직을 추가할 수 있습니다.
+        return this.userRole.isOwner();
     }
 }

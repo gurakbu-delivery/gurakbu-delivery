@@ -28,7 +28,7 @@ public class ReviewService {
     @Transactional
     public ReviewResponseDto createReview(User user, ReviewRequestDto requestDto){
 
-        Order order = orderRepository.findByUserAndMenuId(user.getId(), requestDto.getMenuId()).
+        Order order = orderRepository.findByUserIdAndOrderItemsMenuId(user.getId(), requestDto.getMenuId()).
                 orElseThrow(()->new IllegalArgumentException("주문을 확인할 수 없습니다."));
 
         // 배달이 완료된 상태에서만 리뷰 작성 가능
@@ -82,7 +82,7 @@ public class ReviewService {
         reply.setParentReview(parentReview);
 
         Review savedReview = reviewRepository.save(reply);
-        return convertChildReviewToDto(savedReview);;
+        return convertChildReviewToDto(savedReview);
     }
 
 
@@ -180,7 +180,7 @@ public class ReviewService {
         dto.setReviewId(review.getId());
         dto.setContents(review.getContents());
         dto.setRating(review.getRating());
-        dto.setUserName(review.getUser().getUsername());
+        dto.setUserName(review.getUser().getName());
 
 
         // 주문 정보
@@ -208,7 +208,7 @@ public class ReviewService {
         dto.setReviewId(child.getId());
         dto.setContents(child.getContents());
         dto.setRating(child.getRating());
-        dto.setUserName(child.getUser().getUsername());
+        dto.setUserName(child.getUser().getName());
         dto.setOrderId(child.getOrder().getId());
         dto.setRestaurantName(child.getRestaurant().getName());
         dto.setMenuNames(Collections.emptyList());
