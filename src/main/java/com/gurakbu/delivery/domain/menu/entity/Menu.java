@@ -1,5 +1,6 @@
 package com.gurakbu.delivery.domain.menu.entity;
 
+import com.gurakbu.delivery.domain.menu.dto.request.MenuUpdateRequestDto;
 import com.gurakbu.delivery.domain.restaurant.entity.Restaurant;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -22,11 +23,10 @@ public class Menu {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-//    아직 연동되지 않음
-//    restaurent Entity와의 관계설정 : 외래 키
-//    @ManyToOne
-//    @JoinColumn(name = "restaurant_id", nullable = false) // menu의 단독조회가 불가능하므로 NOT NULL
-//    private Restaurant restaurent;
+    // restaurents Entity와의 관계설정 : 외래 키
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "restaurant_id", nullable = false) // menu의 단독조회가 불가능하므로 NOT NULL
+    private Restaurant restaurent;
 
     // 메뉴 이름
     @Column(name = "name", nullable = false, length = 255)
@@ -47,7 +47,7 @@ public class Menu {
     @Column(name = "description", length = 255)
     private String description;
 
-    // 메뉴 인기여부
+    // 메뉴 인기여부 / NULL
     @Column(name = "popularity", columnDefinition = "BIT")
     private Boolean popularity;
 
@@ -62,54 +62,47 @@ public class Menu {
 
     // 메뉴 수정일자
     @Column(name="updated_at")
-    private LocalDateTime updatedAt;
+    private LocalDateTime updatedAt = LocalDateTime.now();
 
     // 정적 팩토리 메서드: 메뉴 생성 로직(Menu.builder())을 엔티티 층으로 이동
     // 객체 생성에 필요한 값만 create에서 처리하고, 그 외 자동으로 보완할 값은 DB 저장 직전에 @PerPersist에서 처리
     public static Menu create(Restaurant restaurant, String name, Integer price, MenuCategory category, String description, MenuStatus status, boolean popularity) {
-        Menu menu = new Menu();
-        menu.restaurant = restaurant;
-        menu.name = name;
-        menu.price = price;
-        menu.category = category;
-        menu.description = description;
-        menu.status = status;
-        menu.popularity = popularity;
-        return menu;
+        return Menu.builder()
+                .restaurent(restaurant)
+                .name(name)
+                .price(price)
+                .category(category != null ? category : MenuCategory.ETC)  // 기본값 설정
+                .description(description)
+                .status(status != null ? status : MenuStatus.CLOSED)        // 기본값 설정
+                .popularity(popularity == false ? false : popularity)       // 기본값 설정
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
     }
 
-    // 생성시 설정 : 생성시간, 수정시간 설정
     // 객체 생성에 필요한 값만 create에서 처리하고, 그 외 자동으로 보완할 값은 DB 저장 직전에 @PerPersist에서 처리
+    // 생성시 자동설정 : 생성시간, 수정시간
     @PrePersist
     protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-        if(popularity == null) {        // 인기메뉴 미 입력시
-            popularity = false;         // 기본값 설정
-        }
-        if (category == null) {          // 카테고리 미 입력시
-            category = MenuCategory.ETC; // 기본값 설정
-        }
-
-        if (status == null) {                // 상태 미 입력시
-            status = MenuStatus.CLOSED; // 기본값 설정
-        }
+        this.createdAt = LocalDateTime.now();  // 기본값이 이미 설정되었지만, DB 저장 직전에 보장
+        this.updatedAt = LocalDateTime.now();
     }
 
-    // 메뉴 수정 메서드 (updatedAt은 JPA가 @PreUpdate로 변경)
-    public void update(String name, Integer price, MenuCategory category, String description, MenuStatus status, boolean popularity) {
-        if (name != null) this.name = name;
-        if (price != null) this.price = price;
-        if (category != null) this.category = category;
-        if (description != null) this.description = description;
-        if (status != null) this.status = status;
-        this.popularity = popularity;
-    }
+    // 메뉴 수정 메서드
+   public void update(MenuUpdateRequestDto dto) {
+       this.name = dto.getName() != null ? dto.getName() : this.name;
+       this.price = dto.getPrice() != null ? dto.getPrice() : this.price;
+       this.category = dto.getCategory() != null ? dto.getCategory() : this.category;
+       this.description = dto.getDescription() != null ? dto.getDescription() : this.description;
+       this.status = dto.getStatus() != null ? dto.getStatus() : this.status;
+       this.popularity = dto.getPopularity() != null ? dto.getPopularity() : this.popularity;
+       this.updatedAt = LocalDateTime.now();
+   }
 
-    // 수정시 설정 : 수정시간 재설정
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
+    // 메뉴 삭제
+    public void delete(){
+        this.status = MenuStatus.DELETED;
+        this.updatedAt = LocalDateTime.now();
     }
 }
 
