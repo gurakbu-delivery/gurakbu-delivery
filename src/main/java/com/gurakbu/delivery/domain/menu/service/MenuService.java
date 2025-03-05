@@ -73,7 +73,7 @@ public class MenuService {
 
         // 메뉴가 연결된 레스토랑이 요청한 레스토랑과 같은지 권한 확인
         if (!menu.getRestaurant().getId().equals(restaurant.getId())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한없음: 해당 가게의 메뉴가 아닙니다");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한없음: 해당 가게의 메뉴가 아닙니다");      // HTTP 403 Forbidden
         }
 
         menu.update(requestDto);
@@ -97,7 +97,7 @@ public class MenuService {
 
         // 메뉴가 연결된 레스토랑이 요청한 레스토랑과 같은지 권한 확인
         if (!menu.getRestaurant().getId().equals(restaurant.getId())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한없음: 해당 가게의 메뉴가 아닙니다");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한없음: 해당 가게의 메뉴가 아닙니다");      // HTTP 403 Forbidden
         }
         menu.delete();
     }
