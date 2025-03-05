@@ -27,7 +27,7 @@ public class Menu extends BaseTimeEntity {
     // restaurents Entity와의 관계설정 : 외래 키
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "restaurant_id", nullable = false) // menu의 단독조회가 불가능하므로 NOT NULL
-    private Long restaurentId;
+    private Restaurant restaurant;
 
     // 메뉴 이름
     @Column(name = "name", nullable = false, length = 255)
@@ -67,9 +67,9 @@ public class Menu extends BaseTimeEntity {
 
     // 정적 팩토리 메서드: 메뉴 생성 로직(Menu.builder())을 엔티티 층으로 이동
     // 객체 생성에 필요한 값만 create에서 처리하고, 그 외 자동으로 보완할 값은 DB 저장 직전에 @PerPersist에서 처리
-    public static Menu create(long restaurentId, String name, Integer price, MenuCategory category, String description, MenuStatus status, boolean popularity) {
+    public static Menu create(Restaurant restaurent, String name, Integer price, MenuCategory category, String description, MenuStatus status, boolean popularity) {
         return Menu.builder()
-                .restaurentId(restaurentId)
+                .restaurant(restaurent)
                 .name(name)
                 .price(price)
                 .category(category != null ? category : MenuCategory.ETC)  // 기본값 설정

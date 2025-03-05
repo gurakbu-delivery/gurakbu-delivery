@@ -5,6 +5,7 @@ import com.gurakbu.delivery.domain.menu.dto.request.MenuUpdateRequestDto;
 import com.gurakbu.delivery.domain.menu.dto.response.MenuResponseDto;
 import com.gurakbu.delivery.domain.menu.service.MenuService;
 import com.gurakbu.delivery.domain.user.entity.User;
+import com.gurakbu.delivery.domain.user.repository.UserRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 public class MenuController {
 
     private final MenuService menuService;
+    private final UserRepository userRepository;
 
     /**
      * 메뉴 생성
@@ -29,7 +31,7 @@ public class MenuController {
             @PathVariable Long restaurantId,
             @Valid @RequestBody MenuCreateRequestDto requestDto
     ){
-        MenuResponseDto responseDto = menuService.createMenu(restaurantId, requestDto, user);
+        MenuResponseDto responseDto = menuService.createMenu(user, restaurantId, requestDto);
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 
@@ -44,7 +46,7 @@ public class MenuController {
             @PathVariable Long menuId,
             @Valid @RequestBody MenuUpdateRequestDto requestDto
     ){
-        MenuResponseDto responseDto = menuService.updateMenu(restaurantId, menuId, requestDto, user);
+        MenuResponseDto responseDto = menuService.updateMenu(user, restaurantId, menuId, requestDto);
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
@@ -58,7 +60,7 @@ public class MenuController {
             @PathVariable Long restaurantId,
             @PathVariable Long menuId
     ){
-        menuService.deleteMenu(restaurantId, menuId, user);
+        menuService.deleteMenu(user, restaurantId, menuId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }
