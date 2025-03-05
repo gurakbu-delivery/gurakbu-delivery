@@ -1,6 +1,7 @@
 package com.gurakbu.delivery.domain.menu.controller;
 
 import com.gurakbu.delivery.domain.menu.dto.request.MenuCreateRequestDto;
+import com.gurakbu.delivery.domain.menu.dto.request.MenuUpdateRequestDto;
 import com.gurakbu.delivery.domain.menu.dto.response.MenuResponseDto;
 import com.gurakbu.delivery.domain.menu.service.MenuService;
 import jakarta.validation.Valid;
@@ -30,7 +31,7 @@ public class MenuController {
             @PathVariable Long restaurentId,
             @Valid @RequestBody MenuCreateRequestDto requestDto)
     {
-        MenuResponseDto responseDto = menuService.createMenu(restaurentId, requestDto, );   // 사용자인증
+        MenuResponseDto responseDto = menuService.createMenu(restaurentId, requestDto);   // 마지막 파라미터로 사용자인증 수정필요
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 
@@ -46,9 +47,10 @@ public class MenuController {
     @PutMapping("/{restaurentId}/{menuId}")
     public ResponseEntity<MenuResponseDto> updateMenu(
             @PathVariable Long restaurentId,
-            @Valid @RequestBody MenuCreateRequestDto requestDto)
+            @PathVariable Long menuId,
+            @Valid @RequestBody MenuUpdateRequestDto requestDto)
     {
-        MenuResponseDto responseDto = menuService.updateMenu(restaurentId, requestDto, );   // 사용자인증
+        MenuResponseDto responseDto = menuService.updateMenu(restaurentId, menuId, requestDto);   // 마지막 파라미터로 사용자인증 수정필요
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
@@ -62,7 +64,7 @@ public class MenuController {
      */
     @DeleteMapping("/{restaurantId}/{menuId}")
     public ResponseEntity<MenuResponseDto> deleteMenu(@PathVariable Long restaurentId, @PathVariable Long menuId){
-        menuService.deleteMenu(restaurentId, menuId, ); // 사용자 인증필요
+        menuService.deleteMenu(restaurentId, menuId); // 사용자 인증필요
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }
