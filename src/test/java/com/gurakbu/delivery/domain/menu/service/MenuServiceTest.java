@@ -11,6 +11,9 @@ import com.gurakbu.delivery.domain.restaurant.entity.Restaurant;
 import com.gurakbu.delivery.domain.restaurant.enums.RestaurantCategory;
 import com.gurakbu.delivery.domain.restaurant.enums.RestaurantStatus;
 import com.gurakbu.delivery.domain.restaurant.repository.RestaurantRepository;
+import com.gurakbu.delivery.domain.user.entity.User;
+import com.gurakbu.delivery.domain.user.enums.UserRole;
+import com.gurakbu.delivery.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -34,12 +37,18 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class MenuServiceTest {
 
+    @InjectMocks      // 실제 테스트할 서비스
+    private MenuService menuService;
+
     @Mock
     private MenuRepository menuRepository;
     @Mock
     private RestaurantRepository restaurantRepository;
-    @InjectMocks    // 실제 테스트할 서비스
-    private MenuService menuService;
+    @Mock
+    private UserRepository userRepository;
+
+    private User userI;
+    private User userU;
     private Restaurant myRestaurant;
     private Restaurant elseRestaurant;
     private Menu myMenu;
@@ -47,11 +56,13 @@ public class MenuServiceTest {
 
     @BeforeEach
     void setUp() {
+        userI = new User("abc1234@naver.com", "qlalfqjsgh1!", UserRole.OWNER);
+        userU = new User("def1234@naver.com", "qlalfqjsgh1!", UserRole.OWNER);
         myRestaurant = new Restaurant("야채구락부", "스파르타읍 내배캠면 스프링리", "온 가족이 먹는 음식", RestaurantCategory.KOREAN, RestaurantStatus.OPEN, LocalTime.of(9,0), LocalTime.of(22,0), 5000);
         elseRestaurant = new Restaurant("고기구락부", "스파르타읍 내배캠면 스프링리", "온 가족이 먹는 음식", RestaurantCategory.KOREAN, RestaurantStatus.OPEN, LocalTime.of(9,0), LocalTime.of(22,0), 5000);
         myMenu = Menu.builder()
                 .id(1L)
-                .restaurentId(myRestaurant.getId())
+                .restaurant(myRestaurant)
                 .name("장충동왕왕족발보쌈")
                 .price(30000)
                 .category(MenuCategory.SIDE)
@@ -60,7 +71,7 @@ public class MenuServiceTest {
                 .build();
         elseMenu = Menu.builder()
                 .id(2L)
-                .restaurentId(elseRestaurant.getId())
+                .restaurant(elseRestaurant)
                 .name("돼지갈비&냉면SET")
                 .price(10000)
                 .category(MenuCategory.MAIN)
@@ -77,12 +88,12 @@ public class MenuServiceTest {
         MenuCreateRequestDto requestDto = new MenuCreateRequestDto(
                 "막국수", 5000, MenuCategory.SIDE, "족발먹는데 막국수를 안 드시려구요?", false, MenuStatus.OPEN
         );
-        Menu menu = Menu.create(restaurantId, requestDto.getName(), requestDto.getPrice(), requestDto.getCategory(), requestDto.getDescription(), requestDto.getStatus(), requestDto.getPopularity());
+        Menu menu = Menu.create(myRestaurant, requestDto.getName(), requestDto.getPrice(), requestDto.getCategory(), requestDto.getDescription(), requestDto.getStatus(), requestDto.getPopularity());
         when(restaurantRepository.findById(restaurantId)).thenReturn(Optional.of(myRestaurant));
         when(menuRepository.save(any(Menu.class))).thenReturn(menu);
 
         // when (실행)
-        MenuResponseDto createdMenu = menuService.createMenu(myRestaurant.getId(), requestDto);
+        MenuResponseDto createdMenu = menuService.createMenu(userI, restaurantId,requestDto);
 
         // then (검증)
         assertThat(createdMenu).isNotNull();
@@ -132,7 +143,7 @@ public class MenuServiceTest {
         when(menuRepository.findById(menuId)).thenReturn(Optional.of(myMenu));
 
         // when (실행)
-        MenuResponseDto updatedMenu = menuService.updateMenu(myRestaurant.getId(), menuId, requestDto);
+        MenuResponseDto updatedMenu = menuService.updateMenu(userI, restaurantId, menuId, requestDto);
 
         // then (검증)
         assertThat(updatedMenu).isNotNull();
@@ -159,7 +170,7 @@ public class MenuServiceTest {
         when(restaurantRepository.findById(invalidRestaurantId)).thenReturn(Optional.empty());  // 잘못된 restaurantId
 
         // when (실행) & then (검증)
-        assertThrows(ResponseStatusException.class, () -> menuService.updateMenu(invalidRestaurantId, menuId, requestDto));
+        assertThrows(ResponseStatusException.class, () -> menuService.updateMenu(userI, invalidRestaurantId, menuId, requestDto));
     }
 
     @Test
@@ -180,7 +191,7 @@ public class MenuServiceTest {
         when(menuRepository.findById(invalidMenuId)).thenReturn(Optional.empty());
 
         // when (실행) & then (검증)
-        assertThrows(ResponseStatusException.class, () -> menuService.updateMenu(restaurantId, invalidMenuId, requestDto));
+        assertThrows(ResponseStatusException.class, () -> menuService.updateMenu(userI, restaurantId, invalidMenuId, requestDto));
     }
 
     @Test
