@@ -6,6 +6,7 @@ import com.gurakbu.delivery.domain.review.dto.response.ReviewResponseDto;
 import com.gurakbu.delivery.domain.review.repository.ReviewRepository;
 import com.gurakbu.delivery.domain.review.service.ReviewService;
 import com.gurakbu.delivery.domain.user.entity.User;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -25,7 +26,7 @@ public class ReviewController {
     @PostMapping
     public ResponseEntity<ReviewResponseDto> createReview(
             @AuthenticationPrincipal User user,
-            @RequestBody ReviewRequestDto requestDto
+            @RequestBody @Valid ReviewRequestDto requestDto
     ){
 
         ReviewResponseDto responseDto = reviewService.createReview(user, requestDto);
@@ -37,7 +38,7 @@ public class ReviewController {
     public ResponseEntity<ReviewResponseDto> createReviewReply(
             @AuthenticationPrincipal User user,
             @PathVariable Long reviewId,
-            @RequestBody ReviewReplyRequestDto requestDto
+            @RequestBody @Valid ReviewReplyRequestDto requestDto
             ){
         ReviewResponseDto responseDto = reviewService.createReviewReply(user, reviewId, requestDto);
         return ResponseEntity.ok(responseDto);
@@ -62,7 +63,7 @@ public class ReviewController {
     public ResponseEntity<ReviewResponseDto> updateReview(
             @AuthenticationPrincipal User user,
             @PathVariable Long reviewId,
-            @RequestBody ReviewRequestDto requestDto
+            @RequestBody @Valid ReviewRequestDto requestDto
     ){
 
         ReviewResponseDto responseDto = reviewService.updateReview(reviewId,requestDto,user);
