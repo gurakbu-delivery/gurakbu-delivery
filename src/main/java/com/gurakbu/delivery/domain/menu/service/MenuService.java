@@ -7,6 +7,7 @@ import com.gurakbu.delivery.domain.menu.entity.Menu;
 import com.gurakbu.delivery.domain.menu.repository.MenuRepository;
 import com.gurakbu.delivery.domain.restaurant.entity.Restaurant;
 import com.gurakbu.delivery.domain.restaurant.repository.RestaurantRepository;
+import com.gurakbu.delivery.domain.user.entity.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,7 +25,7 @@ public class MenuService {
     //private final UserService userService;
 
     // 메뉴 생성
-    public MenuResponseDto createMenu(Long restaurantId, MenuCreateRequestDto requestDto) { // 마지막 파라미터로 user인증필요
+    public MenuResponseDto createMenu(Long restaurantId, MenuCreateRequestDto requestDto, User user) {
          // restaurantId 존재 여부 확인
          Restaurant restaurant = restaurantRepository.findById(restaurantId)
                  .orElseThrow(() -> new IllegalArgumentException("[!] 선택한 가게가 존재하지 않습니다."));
@@ -39,7 +40,7 @@ public class MenuService {
 //        }
 
          Menu menu = Menu.create(
-                 restaurantId,
+                 restaurant,
                  requestDto.getName(),
                  requestDto.getPrice(),
                  requestDto.getCategory(),
@@ -54,7 +55,7 @@ public class MenuService {
      }
 
     // 메뉴 수정
-    public MenuResponseDto updateMenu(Long restaurantId, Long menuId, MenuUpdateRequestDto requestDto) { // 마지막 파라미터로 user인증필요
+    public MenuResponseDto updateMenu(Long restaurantId, Long menuId, MenuUpdateRequestDto requestDto, User user) {
 //         restaurantId 존재 여부 확인
         Restaurant restaurant = restaurantRepository.findById(restaurantId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "[!] 존재하지 않는 가게"));
@@ -67,7 +68,7 @@ public class MenuService {
         Menu menu = menuRepository.findById(menuId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "[!] 존재하지 않는 메뉴"));
 
-        if (!menu.getRestaurentId().equals(restaurantId)) {
+        if (!menu.getRestaurent().getId().equals(restaurantId)) {
             throw new RuntimeException("[!] 수정하려는 메뉴가 사장님 가게의 메뉴가 아닙니다.");
         }
         menu.update(requestDto);
@@ -75,7 +76,7 @@ public class MenuService {
     }
 
     // 메뉴 삭제
-    public void deleteMenu(Long restaurantId, Long menuId) {            // 마지막 파라미터로 user인증필요
+    public void deleteMenu(Long restaurantId, Long menuId, User user) {
         //         restaurantId 존재 여부 확인
         Restaurant restaurant = restaurantRepository.findById(restaurantId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "[!] 존재하지 않는 가게"));

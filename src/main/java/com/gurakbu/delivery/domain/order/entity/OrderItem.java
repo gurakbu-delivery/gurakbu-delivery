@@ -1,5 +1,6 @@
 package com.gurakbu.delivery.domain.order.entity;
 
+import com.gurakbu.delivery.common.BaseTimeEntity;
 import com.gurakbu.delivery.domain.menu.entity.Menu;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -11,7 +12,7 @@ import java.awt.*;
 @Setter
 @Getter
 @Table(name = "order_items")
-public class OrderItem {
+public class OrderItem extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
