@@ -4,11 +4,11 @@ import com.gurakbu.delivery.common.BaseTimeEntity;
 import com.gurakbu.delivery.domain.restaurant.dto.request.RestaurantUpdateRequestDto;
 import com.gurakbu.delivery.domain.restaurant.enums.RestaurantCategory;
 import com.gurakbu.delivery.domain.restaurant.enums.RestaurantStatus;
+import com.gurakbu.delivery.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Getter
@@ -21,7 +21,9 @@ public class Restaurant extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @Column(nullable = false)
     private String name;
@@ -47,7 +49,8 @@ public class Restaurant extends BaseTimeEntity {
     @Column
     private Integer minDeliveryPrice;
 
-    public Restaurant(String name, String address, String description, RestaurantCategory category, RestaurantStatus status, LocalTime openTime, LocalTime closeTime, Integer minDeliveryPrice) {
+    public Restaurant(User user, String name, String address, String description, RestaurantCategory category, RestaurantStatus status, LocalTime openTime, LocalTime closeTime, Integer minDeliveryPrice) {
+        this.user = user;
         this.name = name;
         this.address = address;
         this.description = description;
@@ -58,7 +61,8 @@ public class Restaurant extends BaseTimeEntity {
         this.minDeliveryPrice = minDeliveryPrice;
     }
 
-    public void updateRestaurant(RestaurantUpdateRequestDto dto){
+    public void updateRestaurant(User user, RestaurantUpdateRequestDto dto){
+        this.user = user;
         if(dto.getName() != null){
             this.name = dto.getName();
         }
