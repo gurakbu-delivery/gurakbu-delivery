@@ -8,6 +8,7 @@ import com.gurakbu.delivery.domain.order.dto.response.OrderResponseDto;
 import com.gurakbu.delivery.domain.order.service.OrderService;
 import com.gurakbu.delivery.domain.order.status.OrderStatus;
 import com.gurakbu.delivery.domain.user.entity.User;
+import com.gurakbu.delivery.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,27 +21,31 @@ import org.springframework.web.bind.annotation.*;
 public class OrderController {
 
     private final OrderService orderService;
+    private final UserService userService;
 
     // 주문 생성
     @PostMapping
     public ResponseEntity<OrderResponseDto> createOrder(
-            @AuthenticationPrincipal User user,
-            @RequestBody OrderRequestDto orderRequestDto){
+            @AuthenticationPrincipal String email,
+            @RequestBody OrderRequestDto orderRequestDto) {
+
+        User user = userService.findByEmail(email);
 
         OrderResponseDto orderResponseDto = orderService.createOrder(user, orderRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(orderResponseDto);
     }
 
-
     // 주문 상태 변경
     @PutMapping("/{orderId}/status")
     public ResponseEntity<OrderStatus> updateOrderStatus(
-            @AuthenticationPrincipal User user,
+            @AuthenticationPrincipal String email,
             @PathVariable Long orderId,
             @RequestBody OrderStatusUpdateRequestDto requestDto){
 
-        OrderStatus updatedStatus = orderService.updateOrderStatus(user,orderId,requestDto.getStatus());
+        User user = userService.findByEmail(email);
 
+        OrderStatus updatedStatus =
+                orderService.updateOrderStatus(user, orderId, requestDto.getStatus());
         return ResponseEntity.ok(updatedStatus);
     }
 
@@ -48,17 +53,18 @@ public class OrderController {
     @GetMapping("/{orderId}")
     public ResponseEntity<OrderResponseDto> getOrder(@PathVariable Long orderId){
         OrderResponseDto responseDto = orderService.getOrder(orderId);
-
         return ResponseEntity.ok(responseDto);
     }
 
     // 가게 측에서 주문 취소
     @DeleteMapping("/restaurant/{restaurantId}/{orderId}/cancel")
     public ResponseEntity<CancelOrderResponseDto> cancelOrderByRestaurant(
-            @AuthenticationPrincipal User user,
+            @AuthenticationPrincipal String email,
             @PathVariable Long restaurantId,
             @PathVariable Long orderId,
             @RequestBody CancelOrderRequestDto requestDto) {
+
+        User user = userService.findByEmail(email);
 
         orderService.cancelOrderByRestaurant(user, restaurantId, orderId, requestDto.getReason());
         CancelOrderResponseDto response = orderService.getCanceledOrderDto(orderId);
@@ -68,13 +74,15 @@ public class OrderController {
     // 가게에서 주문 수락
     @PutMapping("/restaurant/{restaurantId}/{orderId}/accept")
     public ResponseEntity<OrderStatus> acceptOrderByRestaurant(
-            @AuthenticationPrincipal User user,
+            @AuthenticationPrincipal String email,
             @PathVariable Long restaurantId,
-            @PathVariable Long orderId) {
+            @PathVariable Long orderId
+    ) {
+        User userEntity = userService.findByEmail(email);
 
-        orderService.acceptOrderByRestaurant(user, restaurantId, orderId);
+        orderService.acceptOrderByRestaurant(userEntity, restaurantId, orderId);
+
         OrderStatus updatedStatus = orderService.getOrder(orderId).getOrderStatus();
         return ResponseEntity.ok(updatedStatus);
     }
-
 }

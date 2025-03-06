@@ -22,21 +22,36 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain)
             throws ServletException, IOException {
 
         String token = resolveToken(request);
 
         if (token != null && jwtTokenProvider.validateToken(token)) {
             Claims claims = jwtTokenProvider.parseClaims(token);
-            String username = claims.getSubject();
+            String email = claims.getSubject(); // email
             String role = (String) claims.get("role");
-            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                    username, null, Collections.singleton(new SimpleGrantedAuthority(role))
-            );
+
+            // role이 비어 있거나 null이면 기본값 세팅
+            if (role == null || role.trim().isEmpty()) {
+                role = "ROLE_USER";
+            }
+
+            // principal 자리에 email을 넣는다.
+            UsernamePasswordAuthenticationToken authToken =
+                    new UsernamePasswordAuthenticationToken(
+                            email,  // principal (String)
+                            null,
+                            Collections.singleton(new SimpleGrantedAuthority(role))
+                    );
             authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+            // SecurityContextHolder에 세팅
             SecurityContextHolder.getContext().setAuthentication(authToken);
         }
+
         filterChain.doFilter(request, response);
     }
 

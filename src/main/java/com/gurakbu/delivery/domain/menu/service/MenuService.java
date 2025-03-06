@@ -68,7 +68,7 @@ public class MenuService {
         Menu menu = menuRepository.findById(menuId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "[!] 존재하지 않는 메뉴"));
 
-        if (!menu.getRestaurent().getId().equals(restaurantId)) {
+        if (!menu.getRestaurant().getId().equals(restaurantId)) {
             throw new RuntimeException("[!] 수정하려는 메뉴가 사장님 가게의 메뉴가 아닙니다.");
         }
         menu.update(requestDto);
@@ -89,7 +89,7 @@ public class MenuService {
         Menu menu = menuRepository.findById(menuId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "[!] 존재하지 않는 메뉴"));
 
-        if (!menu.getRestaurent().getId().equals(restaurantId)) {
+        if (!menu.getRestaurant().getId().equals(restaurantId)) {
             throw new RuntimeException("[!] 삭제하려는 메뉴가 사장님 가게의 메뉴가 아닙니다.");
         }
         menu.delete();

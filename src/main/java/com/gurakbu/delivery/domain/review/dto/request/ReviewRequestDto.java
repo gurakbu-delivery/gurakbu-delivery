@@ -13,13 +13,16 @@ public class ReviewRequestDto {
     private String contents;
 
     @NotNull(message = "별점을 입력해주세요.")
-    @Min(value =1)
-    @Max(value=5)
+    @Min(value = 1)
+    @Max(value = 5)
     private Integer rating;
 
-    @NotNull
+    @NotNull(message = "메뉴 ID를 입력해주세요.")
     private Long menuId;
 
-    @NotNull
+    @NotNull(message = "주문 ID를 입력해주세요.")
+    private Long orderId;
+
+    @NotNull(message = "가게 ID를 입력해주세요.")
     private Long restaurantId;
 }

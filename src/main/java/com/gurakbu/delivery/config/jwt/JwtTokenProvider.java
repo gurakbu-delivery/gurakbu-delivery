@@ -28,13 +28,14 @@ public class JwtTokenProvider {
     private final long REFRESH_TOKEN_VALIDITY = 1000L * 60 * 60 * 24 * 7;
 
     public String generateAccessToken(String email, String role) {
-        Date now = new Date();
-        Date expiry = new Date(now.getTime() + ACCESS_TOKEN_VALIDITY);
+        if (!role.startsWith("ROLE_")) {
+            role = "ROLE_" + role;
+        }
         return Jwts.builder()
                 .setSubject(email)
                 .claim("role", role)
-                .setIssuedAt(now)
-                .setExpiration(expiry)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_VALIDITY))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }

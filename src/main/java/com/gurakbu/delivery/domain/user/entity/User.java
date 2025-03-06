@@ -48,6 +48,7 @@ public class User extends BaseTimeEntity {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Review> reviews = new ArrayList<>();
 
+
     public User(String email, String password, String name, String phone, UserRole role) {
         this.email = email;
         this.password = password;
@@ -82,8 +83,7 @@ public class User extends BaseTimeEntity {
 
     // UserRole을 통한 OWNER 여부 확인
     public boolean isOwner(Long restaurantId) {
-        // 간단하게 OWNER 역할만 체크하거나,
-        // 추가로 해당 사용자가 실제로 해당 식당의 소유자인지 검증하는 로직을 추가할 수 있습니다.
         return this.userRole.isOwner();
     }
+
 }
