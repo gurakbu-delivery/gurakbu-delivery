@@ -115,7 +115,7 @@ public class UserService {
         User user = userRepository.findByEmailAndIsDeletedFalse(username)
                 .orElseThrow(() -> new IllegalArgumentException("사용자 정보를 찾을 수 없습니다."));
         String newAccessToken = jwtTokenProvider.generateAccessToken(user.getEmail(), user.getUserRole().name());
-        // 필요 시 새로운 Refresh Token 발급 및 DB 갱신 가능 (여기서는 그대로 사용)
+
         return new TokenResponseDto(newAccessToken, storedToken.getRefreshToken());
     }
 
