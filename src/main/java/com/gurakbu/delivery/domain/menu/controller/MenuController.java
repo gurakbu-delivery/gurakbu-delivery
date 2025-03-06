@@ -13,6 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/menus")
 @RequiredArgsConstructor
@@ -57,5 +59,13 @@ public class MenuController {
 
         menuService.deleteMenu(restaurantId, menuId, user);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping("/{restaurantId}")
+    public ResponseEntity<List<MenuResponseDto>> getMenus(
+            @PathVariable Long restaurantId
+    ){
+        List<MenuResponseDto> menus = menuService.getMenusByRestaurant(restaurantId);
+        return new ResponseEntity<>(menus, HttpStatus.OK);
     }
 }
