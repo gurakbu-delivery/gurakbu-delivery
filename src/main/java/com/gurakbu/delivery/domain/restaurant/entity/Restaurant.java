@@ -8,10 +8,12 @@ import com.gurakbu.delivery.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalTime;
 
 @Getter
+@Setter
 @Entity
 @Table(name = "restaurants")
 @NoArgsConstructor
@@ -30,11 +32,11 @@ public class Restaurant extends BaseTimeEntity {
     @Column
     private String description;
 
-    @Enumerated(EnumType.STRING) // 문자열로 저장됨 ("KOREAN", "JAPANESE", ...)
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private RestaurantCategory category;
 
-    @Enumerated(EnumType.STRING) // 상태도 문자열로 저장
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private RestaurantStatus status;
 
@@ -48,7 +50,7 @@ public class Restaurant extends BaseTimeEntity {
     private Integer minDeliveryPrice;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     public Restaurant(String name, String address, String description, RestaurantCategory category, RestaurantStatus status, LocalTime openTime, LocalTime closeTime, Integer minDeliveryPrice) {
@@ -62,31 +64,31 @@ public class Restaurant extends BaseTimeEntity {
         this.minDeliveryPrice = minDeliveryPrice;
     }
 
-    public void updateRestaurant(RestaurantUpdateRequestDto dto){
-        if(dto.getName() != null){
+    public void updateRestaurant(RestaurantUpdateRequestDto dto) {
+        if (dto.getName() != null) {
             this.name = dto.getName();
         }
-        if(dto.getAddress() != null){
+        if (dto.getAddress() != null) {
             this.address = dto.getAddress();
         }
-        if(dto.getDescription() != null){
+        if (dto.getDescription() != null) {
             this.description = dto.getDescription();
         }
-        if(dto.getCategory() != null){
+        if (dto.getCategory() != null) {
             this.category = dto.getCategory();
         }
-        if(dto.getOpenTime() != null){
+        if (dto.getOpenTime() != null) {
             this.openTime = dto.getOpenTime();
         }
-        if(dto.getCloseTime() != null){
+        if (dto.getCloseTime() != null) {
             this.closeTime = dto.getCloseTime();
         }
-        if(dto.getMinDeliveryPrice() != null){
+        if (dto.getMinDeliveryPrice() != null) {
             this.minDeliveryPrice = dto.getMinDeliveryPrice();
         }
     }
 
-    public void close(){
+    public void close() {
         this.status = RestaurantStatus.CLOSED;
     }
 }
