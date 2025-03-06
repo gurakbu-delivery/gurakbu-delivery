@@ -8,7 +8,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Getter
@@ -21,8 +20,6 @@ public class Restaurant extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // private Long userId;
-
     @Column(nullable = false)
     private String name;
 
@@ -32,19 +29,21 @@ public class Restaurant extends BaseTimeEntity {
     @Column
     private String description;
 
+    @Enumerated(EnumType.STRING) // 문자열로 저장됨 ("KOREAN", "JAPANESE", ...)
     @Column(nullable = false)
     private RestaurantCategory category;
 
+    @Enumerated(EnumType.STRING) // 상태도 문자열로 저장
     @Column(nullable = false)
     private RestaurantStatus status;
 
-    @Column
+    @Column(nullable = false)
     private LocalTime openTime;
 
-    @Column
+    @Column(nullable = false)
     private LocalTime closeTime;
 
-    @Column
+    @Column(nullable = false)
     private Integer minDeliveryPrice;
 
     public Restaurant(String name, String address, String description, RestaurantCategory category, RestaurantStatus status, LocalTime openTime, LocalTime closeTime, Integer minDeliveryPrice) {
@@ -85,5 +84,4 @@ public class Restaurant extends BaseTimeEntity {
     public void close(){
         this.status = RestaurantStatus.CLOSED;
     }
-
 }

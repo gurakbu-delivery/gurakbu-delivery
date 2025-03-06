@@ -17,7 +17,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor          // 기본 생성자 자동 생성
 @AllArgsConstructor         // 모든 필드를 포함하는 생성자도 자동 생성
 @Builder(toBuilder = true)  // Builder 패턴 자동 생성 & 기존 객체 복사 후 수정 가능
-
 public class Menu extends BaseTimeEntity {
     // id : 기본 키, 자동생성, 자동증가
     @Id
@@ -57,37 +56,30 @@ public class Menu extends BaseTimeEntity {
     @Column(name="status", length = 20)
     private MenuStatus status;
 
-    // 메뉴 생성일자 / NULL, 자동생성 & 수정불가
-    @Column(name ="created_at", updatable = false)
-    private LocalDateTime createdAt;
-
-    // 메뉴 수정일자
-    @Column(name="updated_at")
-    private LocalDateTime updatedAt;
 
     // 정적 팩토리 메서드: 메뉴 생성 로직(Menu.builder())을 엔티티 층으로 이동
     // 객체 생성에 필요한 값만 create에서 처리하고, 그 외 자동으로 보완할 값은 DB 저장 직전에 @PerPersist에서 처리
-    public static Menu create(Restaurant restaurent, String name, Integer price, MenuCategory category, String description, MenuStatus status, boolean popularity) {
+    public static Menu create(Restaurant restaurant, String name, Integer price, MenuCategory category, String description, MenuStatus status, boolean popularity) {
         return Menu.builder()
-                .restaurant(restaurent)
+                .restaurant(restaurant)
                 .name(name)
                 .price(price)
                 .category(category != null ? category : MenuCategory.ETC)  // 기본값 설정
                 .description(description)
                 .status(status != null ? status : MenuStatus.CLOSED)        // 기본값 설정
-                .popularity(popularity ? popularity : false)       // 기본값 설정
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
+                .popularity(popularity == false ? false : popularity)       // 기본값 설정
+              /*  .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())*/
                 .build();
     }
 
     // 객체 생성에 필요한 값만 create에서 처리하고, 그 외 자동으로 보완할 값은 DB 저장 직전에 @PerPersist에서 처리
     // 생성시 자동설정 : 생성시간, 수정시간
-    @PrePersist
+  /*  @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();  // 기본값이 이미 설정되었지만, DB 저장 직전에 보장
         this.updatedAt = LocalDateTime.now();
-    }
+    }*/
 
     // 메뉴 수정 메서드
    public void update(MenuUpdateRequestDto dto) {
@@ -97,13 +89,13 @@ public class Menu extends BaseTimeEntity {
        this.description = dto.getDescription() != null ? dto.getDescription() : this.description;
        this.status = dto.getStatus() != null ? dto.getStatus() : this.status;
        this.popularity = dto.getPopularity() != null ? dto.getPopularity() : this.popularity;
-       this.updatedAt = LocalDateTime.now();
+//       this.updatedAt = LocalDateTime.now();
    }
 
     // 메뉴 삭제
     public void delete(){
         this.status = MenuStatus.DELETED;
-        this.updatedAt = LocalDateTime.now();
+//        this.updatedAt = LocalDateTime.now();
     }
 }
 
