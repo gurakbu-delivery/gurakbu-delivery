@@ -4,6 +4,7 @@ import com.gurakbu.delivery.domain.restaurant.dto.request.RestaurantUpdateReques
 import com.gurakbu.delivery.domain.restaurant.dto.response.RestaurantDetailResponseDto;
 import com.gurakbu.delivery.domain.restaurant.dto.request.RestaurantCreateRequestDto;
 import com.gurakbu.delivery.domain.restaurant.dto.response.RestaurantListResponseDto;
+import com.gurakbu.delivery.domain.restaurant.entity.Restaurant;
 import com.gurakbu.delivery.domain.restaurant.service.RestaurantService;
 import com.gurakbu.delivery.domain.user.entity.User;
 import jakarta.validation.Valid;
@@ -14,6 +15,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/restaurants")
@@ -46,6 +48,14 @@ public class RestaurantController {
     public ResponseEntity<List<RestaurantListResponseDto>> findRestaurants(){
         List<RestaurantListResponseDto> dtos = restaurantService.findAllRestaurants();
         return new ResponseEntity<>(dtos, HttpStatus.OK);
+    }
+
+    // 카테고리별 가게 조회
+    @GetMapping
+    public ResponseEntity<List<RestaurantListResponseDto>> findRestaurantsByCategory(
+            @RequestParam String category) {
+        List<RestaurantListResponseDto> response = restaurantService.getRestaurantsByCategory(category);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     // 가게 정보 수정 (OWNER만 가능)
