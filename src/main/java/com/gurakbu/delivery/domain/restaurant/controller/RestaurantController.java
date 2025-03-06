@@ -51,7 +51,7 @@ public class RestaurantController {
     }
 
     // 카테고리별 가게 조회
-    @GetMapping
+    @GetMapping("/category")
     public ResponseEntity<List<RestaurantListResponseDto>> findRestaurantsByCategory(
             @RequestParam String category) {
         List<RestaurantListResponseDto> response = restaurantService.getRestaurantsByCategory(category);

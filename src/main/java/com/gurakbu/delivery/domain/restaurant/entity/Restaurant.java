@@ -35,9 +35,11 @@ public class Restaurant extends BaseTimeEntity {
     private String description;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private RestaurantCategory category;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private RestaurantStatus status;
 
     @Column
