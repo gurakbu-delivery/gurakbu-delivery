@@ -30,6 +30,7 @@ public class MenuResponseDto {
                 .category(menu.getCategory())
                 .description(menu.getDescription() != null ? menu.getDescription():"")
                 .popularity(menu.getPopularity())
+                .status(menu.getStatus())
                 .createdAt(menu.getCreatedAt())
                 .updatedAt(menu.getUpdatedAt())
                 .build();

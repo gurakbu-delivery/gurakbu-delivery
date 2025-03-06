@@ -36,9 +36,9 @@ public class MenuCreateRequestDto {
 
     // 인기(추천) 메뉴    / 기본값 "FALSE"
     @Builder.Default
-    private Boolean popularity = false;
+    private Boolean popularity = Boolean.FALSE;
 
-    // 메뉴 상테         / 기본값 "CLOSED"
+    // 메뉴 상태        / 기본값 "CLOSED"
     @Builder.Default
     private MenuStatus status = MenuStatus.CLOSED;
 }
