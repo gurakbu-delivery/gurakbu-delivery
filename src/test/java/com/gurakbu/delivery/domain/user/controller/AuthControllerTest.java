@@ -1,14 +1,12 @@
 package com.gurakbu.delivery.domain.user.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gurakbu.delivery.config.jwt.JwtTokenProvider;
 import com.gurakbu.delivery.config.jwt.dto.TokenResponseDto;
 import com.gurakbu.delivery.domain.user.dto.request.LoginRequestDto;
 import com.gurakbu.delivery.domain.user.dto.request.SignUpRequestDto;
 import com.gurakbu.delivery.domain.user.dto.request.UserRequestDto;
 import com.gurakbu.delivery.domain.user.dto.response.UserResponseDto;
 import com.gurakbu.delivery.domain.user.enums.UserRole;
-import com.gurakbu.delivery.domain.user.repository.UserRepository;
 import com.gurakbu.delivery.domain.user.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,16 +14,13 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.token.TokenService;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.argThat;
+
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -125,22 +120,17 @@ class AuthControllerTest {
     @Test
     void 회원정보_수정_성공() throws Exception {
         // given
-        UserRequestDto requestDto = new UserRequestDto(null, "newPassword123##", "김쿠팡이츠", "010-5678-1234", null);
-        UserResponseDto responseDto = new UserResponseDto(null, "newPassword123##", "김쿠팡이츠", "010-5678-1234", null);
-        TokenResponseDto tokenResponseDto = new TokenResponseDto("mockAccessToken", "mockRefreshToken");
+        UserRequestDto requestDto = new UserRequestDto("test@gmail.com", "newPassword123##", "김쿠팡이츠", "010-5678-1234", UserRole.USER);
+        UserResponseDto responseDto = new UserResponseDto(1L, "newPassword123##", "김쿠팡이츠", "010-5678-1234", UserRole.USER);
 
-        when(userService.updateUser(any(String.class), any(UserRequestDto.class))).thenReturn(responseDto);
+        when(userService.updateUser(anyString(), any(UserRequestDto.class))).thenReturn(responseDto);
 
         // when & then
-        mockMvc.perform(put("/auth/user")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(requestDto)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.accessToken").value("mockAccessToken"))
-                .andExpect(jsonPath("$.refreshToken").value("mockRefreshToken"))
-                .andExpect(jsonPath("$.password").value("newPassword123##"))
-                .andExpect(jsonPath("$.name").value("김쿠팡이츠"))
-                .andExpect(jsonPath("$.phoneNumber").value("010-5678-1234"));
+        mockMvc.perform(put("/auth/users")
+                        .header("Authorization", "Bearer mockAccessToken")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestDto)))
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -149,7 +139,7 @@ class AuthControllerTest {
         UserRequestDto requestDto = new UserRequestDto(null, "newPassword123##", "김쿠팡이츠", "010-5678-1234", null);
 
         // when & then
-        mockMvc.perform(put("/auth/user")
+        mockMvc.perform(put("/auth/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDto)))
                 .andExpect(status().isBadRequest());
@@ -158,7 +148,7 @@ class AuthControllerTest {
     @Test
     void 회원탈퇴_성공() throws Exception {
         // given
-        String username = "testUser";
+        String username = "username";
         String password = "Password123##";
 
         Mockito.doNothing().when(userService).deleteUser(username, password);

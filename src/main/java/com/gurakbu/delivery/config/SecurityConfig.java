@@ -27,8 +27,12 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        // 회원가입, 로그인은 모두 접근 가능
-                        .requestMatchers(HttpMethod.POST, "/auth/login", "/auth/signup").permitAll()
+                        // 회원가입, 로그인, 토큰재발급은 모두 접근 가능
+                        .requestMatchers(HttpMethod.POST, "/auth/login", "/auth/signup", "/auth/reissue").permitAll()
+                        // 회원정보 수정 모두 접근가능
+                        .requestMatchers(HttpMethod.PUT, "/auth/users").permitAll()
+                        // 회원탈퇴 모두 접근가능
+                        .requestMatchers(HttpMethod.DELETE, "/auth/delete").permitAll()
                         // 그 외는 인증 필요
                         .anyRequest().authenticated()
                 )

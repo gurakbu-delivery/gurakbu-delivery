@@ -34,7 +34,7 @@ public class AuthController {
     }
 
     // 회원정보수정
-    @PutMapping("/user")
+    @PutMapping("/users")
     public ResponseEntity<UserResponseDto> updateUser(HttpServletRequest request, @RequestBody UserRequestDto userRequestDto) {
         String token = request.getHeader("Authorization");
         if (token == null || !token.startsWith("Bearer ")) {
