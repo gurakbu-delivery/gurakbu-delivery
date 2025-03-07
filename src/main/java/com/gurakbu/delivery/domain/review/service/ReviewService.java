@@ -24,16 +24,29 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final OrderRepository orderRepository;
 
-    // 리뷰 작성 로직
     @Transactional
-    public ReviewResponseDto createReview(User user, ReviewRequestDto requestDto){
+    public ReviewResponseDto createReview(User user, ReviewRequestDto requestDto) {
+        // orderId로 주문 조회
+        Order order = orderRepository.findById(requestDto.getOrderId())
+                .orElseThrow(() -> new IllegalArgumentException("해당 주문을 찾을 수 없습니다."));
 
-        Order order = orderRepository.findByUserIdAndOrderItemsMenuId(user.getId(), requestDto.getMenuId()).
-                orElseThrow(()->new IllegalArgumentException("주문을 확인할 수 없습니다."));
+        if (!order.getRestaurant().getId().equals(requestDto.getRestaurantId())) {
+            throw new IllegalArgumentException("주문과 가게 정보가 일치하지 않습니다.");
+        }
+        boolean menuMatch = order.getOrderItems().stream()
+                .anyMatch(item -> item.getMenu().getId().equals(requestDto.getMenuId()));
+        if (!menuMatch) {
+            throw new IllegalArgumentException("해당 주문에 선택한 메뉴가 포함되어 있지 않습니다.");
+        }
 
-        // 배달이 완료된 상태에서만 리뷰 작성 가능
-        if(order.getStatus() != OrderStatus.DELIVERY_FINISHED){
-            throw new IllegalArgumentException("배달이 완료된 상태에서만 리뷰 작성 가능합니다.");
+        // 해당 주문의 소유자(주문한 사용자)가 맞는지 검증
+        if (!order.getUser().getId().equals(user.getId())) {
+            throw new IllegalArgumentException("리뷰 작성 권한이 없습니다.");
+        }
+
+        // 배달 완료 상태에서만 리뷰 작성 가능
+        if (order.getStatus() != OrderStatus.DELIVERY_FINISHED) {
+            throw new IllegalArgumentException("배달이 완료된 주문에 대해서만 리뷰 작성이 가능합니다.");
         }
 
         // 한 주문 당 한 개의 리뷰만 허용
@@ -42,19 +55,16 @@ public class ReviewService {
             throw new IllegalArgumentException("한 주문 당 한 개의 리뷰만 작성할 수 있습니다.");
         }
 
-        if(!order.getUser().getId().equals(user.getId())){
-            throw new IllegalArgumentException("리뷰 작성 권한이 없습니다.");
-        }
-
-        Review review = new Review();
-        review.setContents(requestDto.getContents());
-        review.setRating(requestDto.getRating());
-        review.setUser(user);
-        review.setOrder(order);
-        review.setRestaurant(order.getRestaurant());
+        // 리뷰 생성 및 저장
+        Review review = Review.builder()
+                .rating(requestDto.getRating())
+                .contents(requestDto.getContents())
+                .user(user)
+                .order(order)
+                .restaurant(order.getRestaurant())
+                .build();
 
         Review savedReview = reviewRepository.save(review);
-
         return convertToReviewResponseDto(savedReview);
     }
 

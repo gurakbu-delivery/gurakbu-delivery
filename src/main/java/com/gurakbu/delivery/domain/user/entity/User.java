@@ -56,11 +56,11 @@ public class User extends BaseTimeEntity {
         this.userRole = role;
     }
 
-//    public User(String email, String password, UserRole userRole) {
-//        this.email = email;
-//        this.password = password;
-//        this.userRole = userRole;
-//    }
+    public User(String email, String password, UserRole userRole) {
+        this.email = email;
+        this.password = password;
+        this.userRole = userRole;
+    }
 
     // 회원 정보 업데이트
     public void update(String password, String name, String phoneNumber) {
@@ -86,4 +86,5 @@ public class User extends BaseTimeEntity {
         // 추가로 해당 사용자가 실제로 해당 식당의 소유자인지 검증하는 로직을 추가할 수 있습니다.
         return this.userRole.isOwner();
     }
+
 }

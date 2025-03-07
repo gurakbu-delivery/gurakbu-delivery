@@ -15,7 +15,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-
 public class MenuCreateRequestDto {
     // 메뉴명
     @NotBlank(message = "[필수값누락] 메뉴명을 입력하세요.")

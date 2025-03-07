@@ -17,7 +17,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor          // 기본 생성자 자동 생성
 @AllArgsConstructor         // 모든 필드를 포함하는 생성자도 자동 생성
 @Builder(toBuilder = true)  // Builder 패턴 자동 생성 & 기존 객체 복사 후 수정 가능
-
 public class Menu extends BaseTimeEntity {
     // id : 기본 키, 자동생성, 자동증가
     @Id
@@ -27,7 +26,7 @@ public class Menu extends BaseTimeEntity {
     // restaurents Entity와의 관계설정 : 외래 키
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "restaurant_id", nullable = false) // menu의 단독조회가 불가능하므로 NOT NULL
-    private Restaurant restaurent;
+    private Restaurant restaurant;
 
     // 메뉴 이름
     @Column(name = "name", nullable = false, length = 255)
@@ -62,7 +61,7 @@ public class Menu extends BaseTimeEntity {
     // 객체 생성에 필요한 값만 create에서 처리하고, 그 외 자동으로 보완할 값은 DB 저장 직전에 @PerPersist에서 처리
     public static Menu create(Restaurant restaurant, String name, Integer price, MenuCategory category, String description, MenuStatus status, boolean popularity) {
         return Menu.builder()
-                .restaurent(restaurant)
+                .restaurant(restaurant)
                 .name(name)
                 .price(price)
                 .category(category != null ? category : MenuCategory.ETC)  // 기본값 설정

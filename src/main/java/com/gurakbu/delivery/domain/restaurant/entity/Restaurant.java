@@ -4,14 +4,16 @@ import com.gurakbu.delivery.common.BaseTimeEntity;
 import com.gurakbu.delivery.domain.restaurant.dto.request.RestaurantUpdateRequestDto;
 import com.gurakbu.delivery.domain.restaurant.enums.RestaurantCategory;
 import com.gurakbu.delivery.domain.restaurant.enums.RestaurantStatus;
+import com.gurakbu.delivery.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Getter
+@Setter
 @Entity
 @Table(name = "restaurants")
 @NoArgsConstructor
@@ -20,8 +22,6 @@ public class Restaurant extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    // private Long userId;
 
     @Column(nullable = false)
     private String name;
@@ -32,20 +32,26 @@ public class Restaurant extends BaseTimeEntity {
     @Column
     private String description;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private RestaurantCategory category;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private RestaurantStatus status;
 
-    @Column
+    @Column(nullable = false)
     private LocalTime openTime;
 
-    @Column
+    @Column(nullable = false)
     private LocalTime closeTime;
 
-    @Column
+    @Column(nullable = false)
     private Integer minDeliveryPrice;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     public Restaurant(String name, String address, String description, RestaurantCategory category, RestaurantStatus status, LocalTime openTime, LocalTime closeTime, Integer minDeliveryPrice) {
         this.name = name;
@@ -58,32 +64,31 @@ public class Restaurant extends BaseTimeEntity {
         this.minDeliveryPrice = minDeliveryPrice;
     }
 
-    public void updateRestaurant(RestaurantUpdateRequestDto dto){
-        if(dto.getName() != null){
+    public void updateRestaurant(RestaurantUpdateRequestDto dto) {
+        if (dto.getName() != null) {
             this.name = dto.getName();
         }
-        if(dto.getAddress() != null){
+        if (dto.getAddress() != null) {
             this.address = dto.getAddress();
         }
-        if(dto.getDescription() != null){
+        if (dto.getDescription() != null) {
             this.description = dto.getDescription();
         }
-        if(dto.getCategory() != null){
+        if (dto.getCategory() != null) {
             this.category = dto.getCategory();
         }
-        if(dto.getOpenTime() != null){
+        if (dto.getOpenTime() != null) {
             this.openTime = dto.getOpenTime();
         }
-        if(dto.getCloseTime() != null){
+        if (dto.getCloseTime() != null) {
             this.closeTime = dto.getCloseTime();
         }
-        if(dto.getMinDeliveryPrice() != null){
+        if (dto.getMinDeliveryPrice() != null) {
             this.minDeliveryPrice = dto.getMinDeliveryPrice();
         }
     }
 
-    public void close(){
+    public void close() {
         this.status = RestaurantStatus.CLOSED;
     }
-
 }
