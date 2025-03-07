@@ -59,7 +59,7 @@ public class Menu extends BaseTimeEntity {
 
     // 정적 팩토리 메서드: 메뉴 생성 로직(Menu.builder())을 엔티티 층으로 이동
     // 객체 생성에 필요한 값만 create에서 처리하고, 그 외 자동으로 보완할 값은 DB 저장 직전에 @PerPersist에서 처리
-    public static Menu create(Restaurant restaurant, String name, Integer price, MenuCategory category, String description, MenuStatus status, boolean popularity) {
+    public static Menu create(Restaurant restaurant, String name, Integer price, MenuCategory category, String description, MenuStatus status, Boolean popularity) {
         return Menu.builder()
                 .restaurant(restaurant)
                 .name(name)
@@ -67,19 +67,9 @@ public class Menu extends BaseTimeEntity {
                 .category(category != null ? category : MenuCategory.ETC)  // 기본값 설정
                 .description(description)
                 .status(status != null ? status : MenuStatus.CLOSED)        // 기본값 설정
-                .popularity(popularity == false ? false : popularity)       // 기본값 설정
-              /*  .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())*/
+                .popularity(popularity != null ?  popularity : Boolean.FALSE)       // 기본값 설정
                 .build();
     }
-
-    // 객체 생성에 필요한 값만 create에서 처리하고, 그 외 자동으로 보완할 값은 DB 저장 직전에 @PerPersist에서 처리
-    // 생성시 자동설정 : 생성시간, 수정시간
-  /*  @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();  // 기본값이 이미 설정되었지만, DB 저장 직전에 보장
-        this.updatedAt = LocalDateTime.now();
-    }*/
 
     // 메뉴 수정 메서드
    public void update(MenuUpdateRequestDto dto) {
@@ -89,13 +79,11 @@ public class Menu extends BaseTimeEntity {
        this.description = dto.getDescription() != null ? dto.getDescription() : this.description;
        this.status = dto.getStatus() != null ? dto.getStatus() : this.status;
        this.popularity = dto.getPopularity() != null ? dto.getPopularity() : this.popularity;
-//       this.updatedAt = LocalDateTime.now();
    }
 
     // 메뉴 삭제
     public void delete(){
         this.status = MenuStatus.DELETED;
-//        this.updatedAt = LocalDateTime.now();
     }
 }
 
