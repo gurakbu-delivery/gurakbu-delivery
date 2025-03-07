@@ -33,7 +33,7 @@ public class User extends BaseTimeEntity {
     private String name;
 
     @Column(nullable = false)
-    private String phone;
+    private String phoneNumber;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -48,30 +48,30 @@ public class User extends BaseTimeEntity {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Review> reviews = new ArrayList<>();
 
-    public User(String email, String password, String name, String phone, UserRole role) {
+    public User(String email, String password, String name, String phoneNumber, UserRole role) {
         this.email = email;
         this.password = password;
         this.name = name;
-        this.phone = phone;
+        this.phoneNumber = phoneNumber;
         this.userRole = role;
     }
 
-    public User(String email, String password, UserRole userRole) {
-        this.email = email;
-        this.password = password;
-        this.userRole = userRole;
-    }
+//    public User(String email, String password, UserRole userRole) {
+//        this.email = email;
+//        this.password = password;
+//        this.userRole = userRole;
+//    }
 
     // 회원 정보 업데이트
-    public void update(String password, String name, String phone) {
+    public void update(String password, String name, String phoneNumber) {
         if (password != null && !password.isBlank()) {
             this.password = password;
         }
         if (name != null && !name.isBlank()) {
             this.name = name;
         }
-        if (phone != null && !phone.isBlank()) {
-            this.phone = phone;
+        if (phoneNumber != null && !phoneNumber.isBlank()) {
+            this.phoneNumber = phoneNumber;
         }
     }
 

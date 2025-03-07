@@ -14,7 +14,6 @@ import com.gurakbu.delivery.domain.user.enums.UserRole;
 import com.gurakbu.delivery.domain.user.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
-import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,7 +58,7 @@ public class UserService {
     @Transactional
     public TokenResponseDto login(LoginRequestDto requestDto){
         User user = userRepository.findByEmailAndIsDeletedFalse(requestDto.getEmail())
-                .orElseThrow(() -> new IllegalArgumentException("이메일이나 비밀번호가 일치하지 않습니다."));
+                .orElseThrow(() -> new IllegalStateException("이메일이나 비밀번호가 일치하지 않습니다."));
 
         if(!passwordEncoder.matches(requestDto.getPassword(),user.getPassword())){
             throw new IllegalStateException("이메일이나 비밀번호가 일치하지 않습니다.");
@@ -86,9 +85,9 @@ public class UserService {
             newPassword = user.getPassword();
         }
 
-        user.update(newPassword, userRequestDto.getName(), userRequestDto.getPhone());
+        user.update(newPassword, userRequestDto.getName(), userRequestDto.getPhoneNumber());
 
-        return new UserResponseDto(user.getId(), user.getEmail(), user.getName(), user.getPhone(), user.getUserRole());
+        return new UserResponseDto(user.getId(), user.getEmail(), user.getName(), user.getPhoneNumber(), user.getUserRole());
     }
 
 
