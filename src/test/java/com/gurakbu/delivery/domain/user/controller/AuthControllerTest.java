@@ -1,10 +1,12 @@
 package com.gurakbu.delivery.domain.user.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gurakbu.delivery.config.jwt.JwtTokenProvider;
 import com.gurakbu.delivery.config.jwt.dto.TokenResponseDto;
 import com.gurakbu.delivery.domain.user.dto.request.LoginRequestDto;
 import com.gurakbu.delivery.domain.user.dto.request.SignUpRequestDto;
 import com.gurakbu.delivery.domain.user.enums.UserRole;
+import com.gurakbu.delivery.domain.user.repository.UserRepository;
 import com.gurakbu.delivery.domain.user.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.token.TokenService;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -31,6 +34,22 @@ class AuthControllerTest {
 
     @MockitoBean
     private UserService userService;
+
+    @MockitoBean
+    private UserRepository userRepository;
+
+    @MockitoBean
+    private TokenService tokenService;
+
+    @MockitoBean
+    private TokenResponseDto tokenResponseDto;
+
+    @MockitoBean
+    private JwtTokenProvider jwtTokenProvider;
+
+    
+
+
 
     @Autowired
     private ObjectMapper objectMapper;

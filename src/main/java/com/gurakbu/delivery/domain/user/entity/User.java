@@ -56,12 +56,6 @@ public class User extends BaseTimeEntity {
         this.userRole = role;
     }
 
-    public User(String email, String password, UserRole userRole) {
-        this.email = email;
-        this.password = password;
-        this.userRole = userRole;
-    }
-
     // 회원 정보 업데이트
     public void update(String password, String name, String phoneNumber) {
         if (password != null && !password.isBlank()) {

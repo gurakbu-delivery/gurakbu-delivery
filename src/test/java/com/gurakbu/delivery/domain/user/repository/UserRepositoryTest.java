@@ -21,10 +21,10 @@ class UserRepositoryTest {
     }
 
     @Test
-    void 이메일로_회원조회() {
+    void 회원_이메일로_회원조회() {
         // given
         String email = "test@gmail.com";
-        User user = new User(email, "Password123", "김배민", "010-1234-5678", UserRole.USER);
+        User user = new User(email, "Password123##", "김배민", "010-1234-5678", UserRole.USER);
         userRepository.save(user);
 
         // when
@@ -34,6 +34,22 @@ class UserRepositoryTest {
         assertNotNull(foundUser);
         assertEquals(email, foundUser.getEmail());
         assertEquals(UserRole.USER, foundUser.getUserRole());
+    }
+
+    @Test
+    void 사장_이메일로_회원조회() {
+        // given
+        String email = "test@gmail.com";
+        User owner = new User(email, "Password123##", "김사장", "010-1234-5678", UserRole.OWNER);
+        userRepository.save(owner);
+
+        // when
+        User foundOwner = userRepository.findByEmailAndIsDeletedFalse(email).orElse(null);
+
+        // then
+        assertNotNull(foundOwner);
+        assertEquals(email, foundOwner.getEmail());
+        assertEquals(UserRole.OWNER, foundOwner.getUserRole());
     }
 
     @Test
@@ -52,11 +68,40 @@ class UserRepositoryTest {
     }
 
     @Test
-    void 이미_가입된_이메일일때_true() {
+    void 사장탈퇴한_이메일로_회원조회() {
+        // given
+        String email = "test@gmail.com";
+        User owner = new User(email, "Password123##", "김사장", "010-1234-5678", UserRole.OWNER);
+        owner.setDeleted(true);
+        userRepository.save(owner);
+
+        // when
+        User foundOwner = userRepository.findByEmailAndIsDeletedFalse(email).orElse(null);
+
+        // then
+        assertNull(foundOwner);
+    }
+
+    @Test
+    void 회원_이미_가입된_이메일일때_true() {
         // given
         String email = "exist@gmail.com";
         User user = new User(email, "Password123", "김배민", "010-1234-5678", UserRole.USER);
         userRepository.save(user);
+
+        // when
+        boolean exists = userRepository.existsByEmail(email);
+
+        // then
+        assertTrue(exists, "이미 가입된 사용자 이메일입니다.");
+    }
+
+    @Test
+    void 사장_이미_가입된_이메일일때_true() {
+        // given
+        String email = "exist@gmail.com";
+        User owner = new User(email, "Password123##", "김사장", "010-1234-5678", UserRole.OWNER);
+        userRepository.save(owner);
 
         // when
         boolean exists = userRepository.existsByEmail(email);
