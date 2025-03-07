@@ -175,7 +175,7 @@ class MenuServiceTest {
 //    }
 
     @Test
-    void 특정_가게ID를_통해_모든_메뉴를_조회한다(){
+    void 특정_가게ID를_통해_모든_메뉴를_조회한다() {
         // given (준비) : 레포지토리 동작만들기
         when(restaurantRepository.findById(myRestaurant.getId())).thenReturn(Optional.of(myRestaurant));    // restaurantRepository.findById(restaurantId)를 사용하는 경우, 실제 DB를 조회하지 않고 restaurant의 id를 반환하도록 설정
         when(menuRepository.findByRestaurantId(myRestaurant.getId())).thenReturn(Optional.of(List.of(myMenu)));  // 위와 동일한 원리
@@ -351,3 +351,4 @@ class MenuServiceTest {
 
         verify(menuRepository, never()).findById(anyLong()); // 메뉴 조회조차 수행되지 않아야 함
     }
+}
