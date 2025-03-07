@@ -5,11 +5,13 @@ import com.gurakbu.delivery.domain.restaurant.enums.RestaurantCategory;
 import com.gurakbu.delivery.domain.restaurant.enums.RestaurantStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.time.LocalTime;
 
 @Getter
+@AllArgsConstructor
 public class RestaurantCreateRequestDto {
 
     @NotBlank(message = "이름을 입력하세요.")
